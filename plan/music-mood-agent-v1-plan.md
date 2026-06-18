@@ -301,21 +301,25 @@ Xây dựng local semantic retrieval module có behavior giống future Qdrant r
 `data/spotify_songs.jsonl`:
 - Normalized từ partner Spotify crawl trong `spocrawl/`.
 - Mỗi dòng là một JSON object.
-- Field bắt buộc:
+- Field bắt buộc (khớp `SongPayload`):
+  - `chunk_id`
   - `song_id`
   - `title`
   - `artist`
-  - `lyric_summary`
+  - `metadata_summary`
+- Field optional:
+  - `lyrics_summary`
   - `mood`
   - `genres`
   - `tags`
-- Field optional:
   - `preview_url`
   - `spotify_url`
   - `album`
   - `release_year`
-  - `combined_text`
-- Lưu ý: crawl hiện chưa có lyric summary thật. Field `lyric_summary` trong V1 là metadata summary tạm thời từ title, artist, album, mood, tags và source category.
+  - `source_name` / `search_query` ...
+- Lưu ý: crawl hiện chưa có lyric summary thật. `metadata_summary` (required) là summary tạm thời
+  từ title, artist, album, mood, tags và source category; `lyrics_summary` (optional) để trống cho
+  tới khi có lyric thật.
 
 `data/mock_songs.jsonl`:
 - Giữ lại fixture nhỏ để unit test nhanh khi không muốn load toàn bộ Spotify dataset.
@@ -362,7 +366,7 @@ artist: <artist if any>
 ### Test checklist
 - [ ] Load được valid JSONL records.
 - [ ] Raise lỗi rõ ràng khi JSONL malformed.
-- [ ] Build searchable text từ `lyric_summary`, `mood`, `genres`, `tags`.
+- [ ] Build searchable text từ `metadata_summary`/`lyrics_summary`, `mood`, `genres`, `tags`.
 - [ ] Return top N theo `limit`.
 - [ ] Với query sad/healing, bài sad/healing rank cao hơn bài energetic không liên quan.
 - [ ] Apply artist filter/boost khi có `artist`.
@@ -773,6 +777,24 @@ Implement core loop `think -> act -> observe -> think/final` với deterministic
 
 Expose agent graph qua HTTP API và cung cấp health/debug behavior phù hợp cho local development.
 
+### Quyết định Phase 7 (chốt trước khi code)
+
+1. **Async handler + `ainvoke`.** `POST /v1/chat` là `async def`. Build graph bằng
+   `build_agent_graph(llm_client, mcp_client)` rồi `await graph.ainvoke(initial_state)`.
+   `initial_state` = `AgentState(user_message=..., ...).model_dump(mode="python")`; output dict
+   parse lại bằng `AgentState.model_validate(output)` (graph dùng TypedDict, vào/ra là dict).
+2. **Graph + client khởi tạo 1 lần.** Tạo `LlmClient` + `McpToolClient` (trỏ `MCP_SERVER_URL`) và
+   compile graph ở startup (lifespan/module-level), không dựng lại mỗi request. API và MCP server
+   là 2 tiến trình tách biệt — API gọi tool qua MCP protocol.
+3. **Map state → `ChatResponse` bằng field thật.** `status` ← `AgentState.status` (None →
+   suy ra: có `recommendations`/`final_answer` → `ok`, ngược lại `failed`); `answer` ←
+   `final_answer`; `recommendations` ← `AgentState.recommendations` (cắt còn `max_results`);
+   `tool_calls` ← `AgentState.tool_calls`.
+4. **`max_results` clamp ở API.** `ChatRequest.max_results` không tự chảy vào graph; API cắt
+   `recommendations[:max_results]` khi shape response. (think LLM tự chọn `limit` trong tool_input.)
+5. **`trace` chỉ khi `debug=true`.** `debug=false` → `trace=None`. `debug=true` → `trace` gồm
+   `scratchpad`, `intent`, `entities`, `confidence`, `iteration_count`, `errors`.
+
 ### Module cần làm
 - FastAPI app.
 - Request validation.
@@ -788,31 +810,35 @@ Expose agent graph qua HTTP API và cung cấp health/debug behavior phù hợp 
 ### Chi tiết triển khai
 
 `main.py`:
-- Tạo FastAPI app.
+- Tạo FastAPI app (`/health` đã có sẵn, giữ nguyên).
 - Endpoints:
-  - `GET /health`
-  - `POST /v1/chat`
+  - `GET /health` → `{"status": "ok"}`.
+  - `POST /v1/chat` (async).
 - `POST /v1/chat` flow:
-  - Validate `ChatRequest`.
-  - Build initial `AgentState`.
-  - Invoke graph.
-  - Convert final state thành `ChatResponse`.
-  - Chỉ include trace khi `debug=true`.
+  - Validate `ChatRequest` (FastAPI tự trả `422` nếu sai).
+  - Build initial `AgentState(user_message=request.message, ...)` → `model_dump(mode="python")`.
+  - `await graph.ainvoke(initial_state)` (graph compile sẵn ở startup).
+  - `AgentState.model_validate(output)` rồi map sang `ChatResponse` (xem quyết định #3, #4).
+  - `trace=None` khi `debug=false`; gắn trace dict khi `debug=true` (quyết định #5).
 - Error behavior:
-  - Validation errors return HTTP `422`.
-  - Unexpected agent errors return HTTP `200` với `status=failed`, trừ khi bản thân API unavailable.
+  - Validation errors → HTTP `422` (mặc định FastAPI).
+  - Agent fail (graph chạy xong nhưng `status=failed` hoặc có `errors`) → HTTP `200` với
+    `status=failed`, không leak stack trace. Graph đã fail-safe nội bộ (think/final bắt
+    `LlmOutputError`), nên API chỉ cần bọc try/except phòng lỗi ngoài dự kiến → `status=failed`.
 
 ### Test checklist
-- [ ] `GET /health` return `{"status": "ok"}`.
-- [ ] `POST /v1/chat` reject empty message.
-- [ ] `POST /v1/chat` return `status=ok` cho successful recommendation.
-- [ ] `POST /v1/chat` include recommendations array.
-- [ ] `debug=false` return `trace=null`.
-- [ ] `debug=true` return route/tool trace.
-- [ ] API map graph failure thành `status=failed` và không leak stack trace.
+- [x] `GET /health` return `{"status": "ok"}`.
+- [x] `POST /v1/chat` reject empty message.
+- [x] `POST /v1/chat` return `status=ok` cho successful recommendation.
+- [x] `POST /v1/chat` include recommendations array.
+- [x] `debug=false` return `trace=null`.
+- [x] `debug=true` return route/tool trace (scratchpad/intent/errors...).
+- [x] `recommendations` bị cắt còn `max_results`.
+- [x] API map graph failure thành `status=failed` và không leak stack trace.
 
 ### Done criteria
-- `pytest tests/test_api.py -q` pass.
+- `pytest tests/test_api.py -q` pass (inject fake `LlmClient`/`McpToolClient` qua dependency
+  override, không cần MCP server hay Gemini thật).
 - Manual API boot hoạt động:
 ```bash
 uvicorn music_agent.api.main:app --host localhost --port 8000
@@ -849,11 +875,21 @@ README phải có:
 - Cách thêm mock songs mới.
 - Cách future Qdrant adapter replace `FixtureSongStore`.
 
-E2E test approach:
-- Mock LLM outputs để deterministic `think` và `final`.
-- Mock Tavily network calls.
-- Dùng real fixture retrieval cho RAG.
-- Dùng FastAPI test client cho `/v1/chat`.
+E2E test approach (offline hoàn toàn, không cần key/network):
+- Mock LLM outputs để deterministic `think` và `final` (fake `LlmClient` như ở
+  `test_agent_graph_routes.py`).
+- Hai tầng tùy mục tiêu test:
+  - **HTTP contract**: inject fake `McpToolClient` qua dependency override → kiểm tra
+    `/v1/chat` shape response, status, trace, clamp `max_results`. Không cần MCP server.
+  - **Real RAG path** (muốn chạy fixture thật): inject deterministic `EmbeddingClient`
+    (kiểu `KeywordEmbeddingClient` ở `test_fixture_store.py`) vào `FixtureSongStore` qua
+    `set_song_store_for_testing`, chạy `rag_tool` qua MCP in-memory protocol (kiểu
+    `test_mcp_client.py`). KHÔNG để E2E phụ thuộc `GEMINI_API_KEY`.
+- Mock Tavily: inject fake `TavilySearchClient` vào `web_tool`.
+- Dùng FastAPI test client (httpx ASGI transport) cho `/v1/chat`.
+- Lưu ý độ phủ đã có: graph wiring (`test_agent_graph_routes`), MCP protocol thật
+  (`test_mcp_client`), retrieval logic (`test_fixture_store`). E2E Phase 8 tập trung vào hợp đồng
+  HTTP + response shaping + debug trace, không lặp lại các tầng đã test.
 
 ### Test checklist
 - [ ] E2E greeting không có tool calls.
@@ -891,30 +927,32 @@ Thay fixture retrieval bằng Qdrant-backed retrieval sau khi V1 agent contract 
 
 ### Chi tiết triển khai
 
-Qdrant payload cho mỗi bài hát:
-- `song_id`
-- `title`
-- `artist`
-- `lyric_summary`
-- `mood`
-- `genres`
-- `tags`
-- `preview_url`
+Qdrant payload cho mỗi point = đúng `SongPayload` (Phase 1), KHÔNG đặt lại tên field. Tối thiểu:
+- `chunk_id`, `song_id`, `title`, `artist`, `metadata_summary` (required theo `SongPayload`).
+- `lyrics_summary`, `mood`, `genres`, `tags`, `preview_url`, `spotify_url`, ... (optional).
 
-Qdrant searchable text phải match fixture searchable text từ Phase 2 để behavior nhất quán.
+Document text để embed phải dùng `FixtureSongStore.build_document_text` (cùng format
+`RETRIEVAL_DOCUMENT`), query dùng `build_query_text` — tái dùng, không viết lại, để behavior khớp.
 
 Collection requirements:
-- Một vector point cho mỗi bài hát.
-- Deterministic point ID từ `song_id`.
+- Một vector point cho mỗi chunk (V1: 1 chunk/bài → point ID deterministic từ `chunk_id`/`song_id`).
 - Idempotent upsert.
 - Payload filters cho `artist`, `genres`, `tags`, `mood`.
 
+`QdrantStore` phải implement cùng interface `FixtureSongStore`:
+- `ensure_index()`, `search(MusicRagSearchInput) -> MusicRagSearchResult`.
+- `search` trả `results: list[SongPayload]` + `diagnostics.score_details[song_id] = {score, semantic_score, metadata_boost}`
+  để `rag_tool` join score y như fixture. `rag_tool`/agent KHÔNG đổi khi swap store.
+
 ### Test checklist
 - [ ] Ingestion đọc raw scraped song records.
-- [ ] Ingestion reject record thiếu `song_id`, `title` hoặc `lyric_summary`.
-- [ ] Qdrant upsert idempotent theo `song_id`.
-- [ ] Qdrant search return cùng response shape với `FixtureSongStore`.
-- [ ] Agent tests không đổi khi swap fixture store sang Qdrant store.
+- [ ] Ingestion reject record thiếu field required của `SongPayload`
+      (`chunk_id`/`song_id`/`title`/`artist`/`metadata_summary`).
+- [ ] Qdrant upsert idempotent theo `chunk_id`/`song_id`.
+- [ ] `QdrantStore.search` return `MusicRagSearchResult` cùng shape `FixtureSongStore`
+      (gồm `diagnostics.score_details`).
+- [ ] `rag_tool` + agent tests không đổi khi swap `FixtureSongStore` sang `QdrantStore`
+      (chỉ đổi binding ở `get_song_store`).
 
 ## Final acceptance checklist
 
