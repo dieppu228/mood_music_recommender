@@ -892,12 +892,12 @@ E2E test approach (offline hoàn toàn, không cần key/network):
   HTTP + response shaping + debug trace, không lặp lại các tầng đã test.
 
 ### Test checklist
-- [ ] E2E greeting không có tool calls.
-- [ ] E2E query sad/healing return song recommendations từ fixture RAG.
-- [ ] E2E unknown recommendation fallback từ RAG sang web search.
-- [ ] E2E artist deep-dive dùng web search đầu tiên.
-- [ ] E2E tool failure return non-fabricated failure answer.
-- [ ] README commands copy-paste chạy được.
+- [x] E2E greeting không có tool calls.
+- [x] E2E query sad/healing return song recommendations từ fixture RAG.
+- [x] E2E unknown recommendation fallback từ RAG sang web search.
+- [x] E2E artist deep-dive dùng web search đầu tiên.
+- [x] E2E tool failure return non-fabricated failure answer.
+- [x] README commands copy-paste chạy được.
 
 ### Done criteria
 - Full suite pass:
