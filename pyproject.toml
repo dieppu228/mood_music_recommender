@@ -1,0 +1,42 @@
+[project]
+name = "music-mood-agent"
+version = "0.1.0"
+description = "Mood-oriented music recommendation agent with LangGraph and MCP tools."
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pydantic-settings",
+    "langgraph",
+    "openai",
+    "mcp",
+    "httpx",
+    "google-genai",
+    "numpy",
+    "tavily-python",
+    "python-dotenv",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "respx",
+    "ruff",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
