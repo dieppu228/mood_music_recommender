@@ -1,0 +1,14 @@
+{
+  "initial_rows": 8668,
+  "final_rows": 8668,
+  "duplicates_removed": 0,
+  "mood_labels_inferred": 172,
+  "mood_distribution": {
+    "happy": 3065,
+    "calm": 2365,
+    "sad": 1859,
+    "energetic": 592,
+    "romantic": 491,
+    "stressed": 296
+  }
+}
