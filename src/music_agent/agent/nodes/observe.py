@@ -74,19 +74,26 @@ def observe_web_result(state: AgentState, payload: dict[str, Any]) -> None:
     sources = payload.get("sources") or [
         item.get("url") for item in evidence if isinstance(item.get("url"), str)
     ]
+    catalog_matches = payload.get("catalog_matches") or []
     enough_context = bool(evidence or sources)
+
+    # Surface catalog songs mentioned in the web text as structured, playable recommendations.
+    if catalog_matches:
+        state.recommendations = [recommendation_from_rag_item(item) for item in catalog_matches]
 
     state.scratchpad.update(
         {
             "tool_ok": bool(payload.get("ok", True)),
             "enough_context": enough_context,
             "summary": (
-                f"Web search returned {len(evidence)} useful result(s)."
+                f"Web search returned {len(evidence)} useful result(s); "
+                f"{len(catalog_matches)} catalog match(es)."
                 if enough_context
                 else "Web search returned no useful result."
             ),
             "evidence": evidence,
             "sources": sources,
+            "catalog_match_count": len(catalog_matches),
             "last_tool": ToolName.WEB_SEARCH,
             "should_fallback_to_web": False,
         }

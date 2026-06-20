@@ -5,8 +5,10 @@ from contextlib import asynccontextmanager
 
 from mcp.server.fastmcp import FastMCP
 
-from music_agent.mcp_server.rag_tool import music_rag_search, warm_up_song_store
+from music_agent.mcp_server.rag_tool import get_song_store, music_rag_search, warm_up_song_store
 from music_agent.mcp_server.web_tool import web_search
+from music_agent.models import SongPayload
+from music_agent.retrieval.fixture_store import FixtureStoreError
 
 
 @asynccontextmanager
@@ -51,8 +53,18 @@ def web_search_tool(query: str, search_intent: str, limit: int = 5) -> dict:
             "query": query,
             "search_intent": search_intent,
             "limit": limit,
-        }
+        },
+        catalog_records=load_catalog_records(),
     )
+
+
+def load_catalog_records() -> list[SongPayload] | None:
+    """Load catalog records for web catalog matching, tolerating store load failures."""
+
+    try:
+        return get_song_store().load_records()
+    except FixtureStoreError:
+        return None
 
 
 app = mcp.streamable_http_app()

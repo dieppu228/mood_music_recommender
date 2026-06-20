@@ -79,6 +79,7 @@ class E2EMcpClient:
                 tool_input,
                 client=self.web_client,
                 settings=Settings(tavily_api_key="test-key"),
+                catalog_records=self.store.load_records() if self.store else None,
             )
         else:
             result = {
@@ -306,6 +307,46 @@ async def test_e2e_unknown_recommendation_falls_back_from_rag_to_web(tmp_path: P
     ]
     assert response["trace"]["scratchpad"]["last_tool"] == "web_search"
     assert "web context" in response["answer"]
+
+
+class _CatalogMentionTavily:
+    """Tavily stub whose text mentions a known catalog song (title + artist)."""
+
+    def search(self, query: str, **kwargs):
+        return {
+            "answer": "Quiet Light by Mina Vale is a calming track worth a listen.",
+            "results": [
+                {
+                    "title": "Calm playlist roundup",
+                    "url": "https://example.com/calm",
+                    "content": "The list features Quiet Light by Mina Vale near the top.",
+                    "score": 0.8,
+                }
+            ],
+        }
+
+
+@pytest.mark.asyncio
+async def test_e2e_web_fallback_surfaces_matching_catalog_song(tmp_path: Path) -> None:
+    store = build_store(tmp_path, [song("calm-001", "Quiet Light", "Mina Vale", "calm healing")])
+    llm = FakeLlmClient(
+        [
+            think_call_rag("rare unknown songs", mood_terms=["rare"]),
+            think_call_web(WebSearchIntent.FALLBACK_RECOMMENDATION),
+            think_respond(AgentIntent.MUSIC_RECOMMENDATION, "Use web fallback context."),
+            final_draft("Dựa trên web context, có một bài phù hợp."),
+        ]
+    )
+    mcp = E2EMcpClient(store=store, web_client=_CatalogMentionTavily())
+    override_graph(build_agent_graph(llm_client=llm, mcp_client=mcp))
+
+    response = await post_chat({"message": "goi y nhac rare unknown", "debug": True})
+
+    assert [c["tool_name"] for c in response["tool_calls"]] == ["music_rag_search", "web_search"]
+    assert response["trace"]["scratchpad"]["catalog_match_count"] == 1
+    assert [r["song_id"] for r in response["recommendations"]] == ["calm-001"]
+    # Web-sourced match carries no semantic score but is a real, playable catalog entry.
+    assert response["recommendations"][0]["score"] is None
 
 
 @pytest.mark.asyncio

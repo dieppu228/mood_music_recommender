@@ -260,6 +260,50 @@ async def test_observe_reads_web_payload_from_result_key() -> None:
 
 
 @pytest.mark.asyncio
+async def test_observe_web_result_surfaces_catalog_matches_as_recommendations() -> None:
+    wrapper = {
+        "ok": True,
+        "tool_name": "web_search",
+        "duration_ms": 9.0,
+        "result": {
+            "ok": True,
+            "results": [
+                {
+                    "title": "Calm list",
+                    "url": "https://example.com/c",
+                    "content": "Quiet Light by Mina Vale.",
+                }
+            ],
+            "sources": ["https://example.com/c"],
+            "catalog_matches": [
+                {
+                    "song_id": "calm-001",
+                    "title": "Quiet Light",
+                    "artist": "Mina Vale",
+                    "mood": ["calm"],
+                    "genres": [],
+                    "tags": [],
+                    "preview_url": "https://p/calm.mp3",
+                    "spotify_url": None,
+                    "score": None,
+                }
+            ],
+            "diagnostics": {},
+        },
+        "error": None,
+    }
+    state = AgentState(user_message="goi y nhac", tool_result=wrapper)
+
+    result = await observe_node(state)
+
+    assert result.scratchpad["tool_ok"] is True
+    assert result.scratchpad["catalog_match_count"] == 1
+    assert [rec.song_id for rec in result.recommendations] == ["calm-001"]
+    assert result.recommendations[0].preview_url == "https://p/calm.mp3"
+    assert result.recommendations[0].score is None
+
+
+@pytest.mark.asyncio
 async def test_final_maps_draft_to_state_and_merges_reasons() -> None:
     state = AgentState(user_message="goi y nhac", recommendations=[rag_song_as_recommendation()])
     llm = FakeLlmClient(
