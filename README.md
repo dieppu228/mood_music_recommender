@@ -3,6 +3,85 @@
 Python service for mood-oriented music recommendations using an agent loop
 (`think -> act -> observe -> final`), MCP tools, and Gemini embeddings.
 
+## Project Overview
+
+Music Mood Agent recommends songs from natural-language requests about emotions, activities,
+genres, or listening preferences. Instead of treating the user's current emotion as the desired
+music mood, the agent separates **current mood** from **target mood** before retrieval.
+
+For example, a message such as "I feel sad" can be rewritten toward calm, happy, healing music,
+while an explicit request such as "I feel sad and want sad songs" keeps `sad` as the target. This
+prevents semantic search from automatically reinforcing a negative mood when the user did not ask
+for that outcome. Target moods are constrained to six canonical values: `happy`, `sad`, `calm`,
+`energetic`, `romantic`, and `stressed`.
+
+The current V1 corpus contains 2,261 Spotify tracks enriched with mood labels, tags, Deezer preview
+audio, and Spotify URLs. Each track is represented as one retrieval document and embedded once with
+`gemini-embedding-001`; the resulting `2261 x 768` matrix is stored as a validated NumPy artifact.
+
+## Agent Workflow
+
+```text
+User request
+    |
+    v
+Think: classify intent, extract entities, choose target mood, rewrite retrieval query
+    |
+    +---------------- direct response -------------------------------+
+    |                                                               |
+    v                                                               v
+Act: execute music_rag_search or web_search over MCP              Final
+    |
+    v
+Observe: validate tool output, collect evidence, decide fallback
+    |
+    +---------------- back to Think ---------------------------------+
+```
+
+- **Think** handles intent classification, mood regulation, entity extraction, query rewriting,
+  tool selection, confidence, and routing reasons.
+- **Act** executes the selected tool through an MCP streamable HTTP server.
+- **Observe** normalizes tool results into scratchpad evidence and structured recommendations. A
+  weak or empty RAG result can trigger one web-search fallback.
+- **Final** generates a grounded response using only the accumulated evidence and recommendations.
+
+Small talk and out-of-domain requests bypass retrieval. Artist deep-dives use web search directly.
+If the user insults the bot, the agent can apologize while still extracting the underlying mood and
+returning calming recommendations.
+
+## Retrieval Design
+
+The internal `music_rag_search` tool combines asymmetric semantic retrieval with deterministic
+metadata scoring:
+
+- Corpus documents use Gemini task type `RETRIEVAL_DOCUMENT`.
+- Rewritten user queries use `RETRIEVAL_QUERY`.
+- Final score weights are semantic `0.55`, mood `0.20`, genres `0.20`, and tags `0.05`.
+- Keyword-field weight is divided across the requested terms, keeping the maximum total score at
+  `1.0`.
+- Artist is excluded from semantic text and scoring; it is an exact normalized payload filter.
+- Web results can be mapped back to playable catalog songs when both title and artist are mentioned.
+
+The corpus embedding artifact includes a manifest with the corpus SHA-256, row count, model, task
+type, dimension, and dtype. A stale or incompatible artifact fails explicitly instead of silently
+re-embedding the complete corpus during a user request.
+
+## Main Components
+
+- `src/music_agent/agent/`: LangGraph state, routing, prompts, mood policy, nodes, and JSONL tracing.
+- `src/music_agent/retrieval/`: fixture-backed semantic retrieval and Gemini embedding adapter.
+- `src/music_agent/mcp_server/`: MCP tools for catalog RAG and Tavily web search.
+- `src/music_agent/api/`: FastAPI chat API and same-origin dashboard delivery.
+- `app/`: static chat dashboard with recommendations, previews, Spotify links, and debug trace.
+- `spocrawl/`: Spotify/Deezer collection, processing scripts, reports, and source snapshots.
+- `data/`: lean song payloads, balanced mock data, and cached document embeddings.
+
+## V1 Scope
+
+V1 is text retrieval only. Audio-feature similarity, Qdrant persistence, reranking, authentication,
+and durable conversation memory are intentionally deferred. The local fixture store follows the
+same payload and result contracts planned for a future Qdrant adapter.
+
 ## Local Setup
 
 ```bash
