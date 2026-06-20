@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">Mood wave visual</title>
+  <desc id="desc">Abstract waveform and playlist cover art for the music mood dashboard.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#20322f"/>
+      <stop offset="0.48" stop-color="#693f43"/>
+      <stop offset="1" stop-color="#d2a449"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#67d7c4"/>
+      <stop offset="0.5" stop-color="#f06f5d"/>
+      <stop offset="1" stop-color="#f2c45b"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" rx="8" fill="url(#bg)"/>
+  <g opacity="0.14" fill="#fff">
+    <rect x="64" y="56" width="64" height="248" rx="8"/>
+    <rect x="152" y="96" width="64" height="168" rx="8"/>
+    <rect x="240" y="72" width="64" height="216" rx="8"/>
+    <rect x="328" y="114" width="64" height="132" rx="8"/>
+    <rect x="416" y="80" width="64" height="200" rx="8"/>
+    <rect x="504" y="122" width="64" height="116" rx="8"/>
+  </g>
+  <path d="M48 188 C104 112 148 260 206 178 S314 116 368 188 474 262 536 162 598 126 624 154" fill="none" stroke="url(#line)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M48 220 C104 144 148 292 206 210 S314 148 368 220 474 294 536 194 598 158 624 186" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="108" cy="188" r="10" fill="#67d7c4"/>
+  <circle cx="368" cy="188" r="10" fill="#f06f5d"/>
+  <circle cx="536" cy="162" r="10" fill="#f2c45b"/>
+</svg>

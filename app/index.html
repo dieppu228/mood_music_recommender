@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Music Mood Agent Dashboard</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar" aria-label="Workspace">
+        <div class="brand">
+          <div class="brand-mark">MM</div>
+          <div>
+            <h1>Music Mood Agent</h1>
+            <p>Listening workspace</p>
+          </div>
+        </div>
+
+        <div class="status-card">
+          <div class="status-row">
+            <span class="status-dot" id="apiDot"></span>
+            <span id="apiStatus">API not checked</span>
+          </div>
+          <button class="ghost-button" id="checkHealth" type="button">Check health</button>
+        </div>
+
+        <section class="panel">
+          <h2>Connection</h2>
+          <label class="field">
+            <span>API URL</span>
+            <input id="apiUrl" type="url" value="http://localhost:8000" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Max results</span>
+            <input id="maxResults" type="number" min="1" max="10" value="5" />
+          </label>
+          <label class="toggle">
+            <input id="debugMode" type="checkbox" />
+            <span>Debug trace</span>
+          </label>
+        </section>
+
+        <section class="panel">
+          <h2>Try prompts</h2>
+          <div class="prompt-list">
+            <button type="button" data-prompt="goi y nhac buon healing">Sad healing</button>
+            <button type="button" data-prompt="nhac chay bo energetic">Workout mood</button>
+            <button type="button" data-prompt="noi sau ve Frank Ocean">Artist deep dive</button>
+            <button type="button" data-prompt="hello">Greeting</button>
+          </div>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Agent loop dashboard</p>
+            <h2>Mood workspace</h2>
+          </div>
+          <div class="topbar-actions">
+            <button class="ghost-button" id="clearChat" type="button">Clear</button>
+          </div>
+        </header>
+
+        <section class="hero-strip" aria-label="Mood visual">
+          <img src="./assets/mood-wave.svg" alt="Abstract mood waveform" />
+          <div class="hero-copy">
+            <span>Mood signal</span>
+            <strong>Build a listening queue from intent, texture, and context</strong>
+          </div>
+        </section>
+
+        <section class="chat-layout">
+          <section class="chat-panel" aria-label="Chat">
+            <div class="messages" id="messages" aria-live="polite">
+              <article class="message agent">
+                <div class="avatar">AI</div>
+                <div class="bubble">
+                  <p>Ready.</p>
+                </div>
+              </article>
+            </div>
+
+            <form class="composer" id="chatForm">
+              <textarea id="messageInput" rows="2" placeholder="Example: goi y nhac buon healing" required></textarea>
+              <button id="sendButton" type="submit">Send</button>
+            </form>
+          </section>
+
+          <aside class="inspector" aria-label="Result inspector">
+            <section class="panel recommendations">
+              <div class="section-heading">
+                <h2>Recommendations</h2>
+                <span id="recommendationCount">0</span>
+              </div>
+              <div id="recommendations" class="empty-state">No recommendations yet.</div>
+            </section>
+
+            <section class="panel trace-panel">
+              <div class="section-heading">
+                <h2>Trace</h2>
+                <span id="traceStatus">hidden</span>
+              </div>
+              <pre id="traceOutput">Enable debug trace to inspect routing.</pre>
+            </section>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script src="./main.js" defer></script>
+  </body>
+</html>
