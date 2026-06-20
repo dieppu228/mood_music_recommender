@@ -40,3 +40,8 @@ Thumbs.db
 # Model artifacts (chưa có — giữ folder trống)
 data/models/*
 !data/models/.gitkeep
+
+# musiXmatch / MSD dumps (tải local, không commit)
+data/external/*.txt
+data/external/*.db
+data/external/*.zip

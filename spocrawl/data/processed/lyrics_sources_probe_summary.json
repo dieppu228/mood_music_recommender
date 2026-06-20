@@ -1,0 +1,57 @@
+{
+  "lrclib": {
+    "n": 60,
+    "ok": 29,
+    "ok_pct": 48.3,
+    "status": {
+      "not_found": 31,
+      "ok": 29
+    }
+  },
+  "lyrics_ovh": {
+    "n": 60,
+    "ok": 9,
+    "ok_pct": 15.0,
+    "status": {
+      "error:ReadTimeout": 30,
+      "not_found": 17,
+      "ok": 9,
+      "http_502": 4
+    }
+  },
+  "genius_search": {
+    "n": 60,
+    "ok": 0,
+    "ok_pct": 0.0,
+    "status": {
+      "search_hit": 54,
+      "not_found": 6
+    }
+  },
+  "genius_scrape": {
+    "n": 60,
+    "ok": 0,
+    "ok_pct": 0.0,
+    "status": {
+      "scrape_403": 60
+    }
+  },
+  "deezer_lyrics": {
+    "n": 60,
+    "ok": 0,
+    "ok_pct": 0.0,
+    "status": {
+      "no_lyrics_endpoint": 33,
+      "error:ConnectionError": 20,
+      "not_found": 7
+    }
+  },
+  "chartlyrics": {
+    "n": 60,
+    "ok": 0,
+    "ok_pct": 0.0,
+    "status": {
+      "http_404": 60
+    }
+  }
+}

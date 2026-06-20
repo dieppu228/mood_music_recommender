@@ -1,14 +1,40 @@
 {
-  "initial_rows": 8668,
-  "final_rows": 8668,
+  "initial_rows": 10197,
+  "final_rows": 10197,
   "duplicates_removed": 0,
   "mood_labels_inferred": 172,
   "mood_distribution": {
     "happy": 3065,
     "calm": 2365,
     "sad": 1859,
-    "energetic": 592,
-    "romantic": 491,
-    "stressed": 296
-  }
+    "energetic": 1050,
+    "romantic": 997,
+    "stressed": 861
+  },
+  "label_source_distribution": {
+    "search_query": 8891,
+    "default_calm": 1134,
+    "inferred": 172
+  },
+  "data_card": {
+    "train_feature_primary": "text_content / tokens",
+    "do_not_train_mood_on": "text_crawl_context, search_query, tags",
+    "label_note": "mood_label từ query crawl — nhãn yếu, không vòng lặp nếu feature là metadata/audio"
+  },
+  "audio_snapshot": {
+    "crawl_status": "in_progress",
+    "western_target": 3000,
+    "attempted": 2705,
+    "audio_ok_v2": 2261,
+    "training_rows": 2261,
+    "feature_schema": "v2",
+    "status_counts": {
+      "ok": 2261,
+      "pending": 295,
+      "error:ConnectionError": 232,
+      "not_found": 210,
+      "no_preview": 2
+    }
+  },
+  "audio_coverage_pct_western": 75.37
 }

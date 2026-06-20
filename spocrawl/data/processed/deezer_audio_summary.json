@@ -1,0 +1,30 @@
+{
+  "feature_schema": "v2",
+  "feature_dim": 54,
+  "western_subset": 3000,
+  "processed_total": 10197,
+  "audio_ok": 1829,
+  "audio_ok_pct": 60.97,
+  "status_counts": {
+    "ok": 1829,
+    "error:ConnectionError": 973,
+    "not_found": 194,
+    "download_failed": 2,
+    "no_preview": 2
+  },
+  "by_mood": {
+    "calm": 280,
+    "energetic": 273,
+    "happy": 299,
+    "romantic": 389,
+    "sad": 324,
+    "stressed": 264
+  },
+  "training_rows": 1829,
+  "files": {
+    "checkpoint": "C:\\Users\\User\\Desktop\\idk\\ds\\data\\processed\\deezer_audio_checkpoint.csv",
+    "features": "C:\\Users\\User\\Desktop\\idk\\ds\\data\\processed\\audio_features.csv",
+    "subset": "C:\\Users\\User\\Desktop\\idk\\ds\\data\\processed\\spotify_audio_subset.csv",
+    "training": "C:\\Users\\User\\Desktop\\idk\\ds\\data\\processed\\spotify_audio_training.csv"
+  }
+}

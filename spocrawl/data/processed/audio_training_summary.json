@@ -1,0 +1,40 @@
+{
+  "crawl_status": "in_progress",
+  "western_target": 3000,
+  "attempted": 2705,
+  "pending": 295,
+  "checkpoint_dup_rows": 0,
+  "audio_ok_v2": 2261,
+  "stale_ok_v1": 0,
+  "ok_pct_of_target": 75.37,
+  "ok_pct_of_attempted": 83.59,
+  "feature_schema": "v2",
+  "feature_dim": 54,
+  "status_counts": {
+    "ok": 2261,
+    "pending": 295,
+    "error:ConnectionError": 232,
+    "not_found": 210,
+    "no_preview": 2
+  },
+  "mood_ok": {
+    "calm": 417,
+    "energetic": 375,
+    "happy": 381,
+    "romantic": 450,
+    "sad": 374,
+    "stressed": 264
+  },
+  "feature_failed_detail": {
+    "load:": 0,
+    "extract:": 0,
+    "near_silent": 0,
+    "len(y)": 0
+  },
+  "training_rows": 2261,
+  "files": {
+    "checkpoint": "data\\processed\\deezer_audio_checkpoint.csv",
+    "training": "data\\processed\\spotify_audio_training.csv"
+  },
+  "note": "Snapshot after retry round (partial if attempted<3000)."
+}

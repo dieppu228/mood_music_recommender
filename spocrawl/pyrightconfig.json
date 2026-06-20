@@ -1,0 +1,8 @@
+{
+  "extraPaths": [".", "scripts"],
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "warning",
+  "reportArgumentType": "none",
+  "reportAttributeAccessIssue": "none",
+  "reportGeneralTypeIssues": "warning"
+}

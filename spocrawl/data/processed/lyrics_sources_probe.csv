@@ -1,0 +1,61 @@
+track_id,artist,title,lrclib_status,lrclib_len,lyrics_ovh_status,lyrics_ovh_len,genius_search_status,genius_search_len,genius_scrape_status,genius_scrape_len,deezer_lyrics_status,deezer_lyrics_len,chartlyrics_status,chartlyrics_len
+48YY3KJOFfMUvX3dxLjI0J,Eels,Feeling Good - Live,ok,900,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+1szSSU8bl5WB5DJIjNCSc2,Ben Hemsley,I Feel Love,ok,819,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+4zcF7AbcX5WB4p657xHNuN,Tape Machines,Trip With You,ok,928,not_found,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+0ct6r3EGTcMLPtrXHDvVjc,Avicii,The Nights,ok,1689,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+0rPYFtIKeykjNFlvOu20Cn,WENDY,Queen Of The Party,ok,1794,not_found,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+1CLmBWrAPdwmqJmFC3acfu,Mario Piano,"Sad Song (From ""Super Mario RPG"")",not_found,0,http_502,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+4i6RTfAn7kjNYfISootvrX,Saint Vice,BAD CHOICES,ok,1123,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+6kzr2QVM3E2PvzM5oHh2N7,DJ Workout,Workout Move,not_found,0,not_found,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+3lHK21L8Kf4Ajdwhjh0zDm,Sebastian Schub,I Can’t Believe We Never Went Out Dancing,ok,1115,not_found,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+0THfladRNQWfvk8crQ9XtO,Lior,Sad piano,not_found,0,not_found,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+3j5pEVmqLDivkVKfZd6E5u,The Melancholy Hours,Azure,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+7og2pID0S9VbhUWEhFanSA,frank Carlone,blue eyes,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+0LX8JHrvXI14jRCcZe35gC,Marco Allevi,Joyful Gale - Pt. 2,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,not_found,0,http_404,0
+5TguOyHemlxCDNy1A7taMK,Orion7,Feel Good Inc.,not_found,0,not_found,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+62kCSfRulirfX47BB5iw0W,Afroman,Play Me Some Music,ok,7358,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+3FJJX5frF4WAoL8Lges38W,Pierse,Love You,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+6wVkpqJ7ZqtmVOhGjcjIvG,Lonely God,Marlboro Nights,ok,556,ok,386,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+2X54zWt7cLR0sV62wHth9M,KSI,Summer Is Over,ok,2684,ok,2378,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+0JUuILPEwTy1x7t9cDVWgF,Greg Sletteland,"Weekend in Las Vegas (Best, Mashup, Friends, Weekend, House Party, Upbeat, Party, Pride, Tomorrowland, After Party, Club, Hits)",not_found,0,not_found,0,not_found,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+3RHtSOqFOOOnyOknIWEzgm,kohto,sadness and sorrow (naruto),not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+7qsUucsnsb2jyupYbj8n3L,Theron Drift,Celestial Calm - with water sounds,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,not_found,0,http_404,0
+3DnNlzei9IcXa9xdsXdGnr,Rachel Grae,How Dare You,ok,2054,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+7C1QeA7vL6bb7V2Wqr19Y7,Chill note STUDIO,Acoustic Guitar and You,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+6ucIl7rqU3NECFkiJq5XJp,Ashes To Amber,"Sadie, KT-22",ok,1265,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+5Q39PLSEzQ4MDcVczTtECs,Relaxing Music,Emotional Ambient Relaxation,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+31IMRbyV9WkG0aO7k6BN3c,SSMedia,Peaceful Night,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+2NO4CA2TFvhGeg7XMz8PmT,TAEYANG,Wedding Dress,ok,1823,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+3SqnwMW6Xcldf9KYgL8UOD,Tiffany Day,BREAKUP,ok,1945,ok,1554,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+3kbUhP3sZMaHQqB7y0LBkL,Hz Anti Stress Frequencies,528 Hz Positive Energy,not_found,0,not_found,0,not_found,0,scrape_403,0,not_found,0,http_404,0
+45HdSTUnK1iBHdw7ePEzSE,Mac Miller,Sunlight (feat. Iman Omari),ok,2637,http_502,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+5Tpv9NQyYNabdscaHh68kn,Ethan Rivermead,Deep Velvet Hours Inducing,not_found,0,error:ReadTimeout,0,not_found,0,scrape_403,0,not_found,0,http_404,0
+6GH4tLwGW6HliKbZBdt6hD,benny blanco,Unlearn (with Gracie Abrams),ok,1649,error:ReadTimeout,0,search_hit,0,scrape_403,0,not_found,0,http_404,0
+0lYQNQEUcPIIpiAo00x58l,chill.farm,no stress,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+5dJQ3JeFSZnG43XmQLwgO7,Marcus Veltri,Sadness and Sorrow,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+3rf9vbMO0vuhtB3CDHTjsO,Madison Beer,HeartLess,ok,1604,ok,1067,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+4ea5CNB5ZGuxRruDibhgHs,FM STAR,Positive Weekend Jazz,not_found,0,not_found,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+4LTFjd0BVtfFjeMdKd8dkD,Jens Buchert,Aeon in Motion - Original Mix,not_found,0,not_found,0,search_hit,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+6kW3tJjtDl3BYwJt52HWcp,NikGifty,Joyful Heart,not_found,0,not_found,0,not_found,0,scrape_403,0,no_lyrics_endpoint,0,http_404,0
+4r5wtdQV4NWsz5AEwy1YCz,DEAMN,Save Me,ok,1362,ok,1268,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+1KFwBOa8gDqT7Avua2yxfe,WJSN,HAPPY,ok,1677,ok,3015,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+1FWo2dSJFGhxCDYDkLTu2U,Leph Louie,Motivated,not_found,0,not_found,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+61Pt4eFd9iq62XbWDZrgmf,KSI,Summer Is Over,ok,2684,error:ReadTimeout,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+0qBJf99P4Hj9O6Bri30hNZ,Jesse Gold,Date Night,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+6o2WunQapVQ2BWGRlypmT7,V#,FRIEND,ok,1223,http_502,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+4ahVNbbhPycMPbW5ZMNuCo,Noah Rinker,Wherever I Go,ok,1200,error:ReadTimeout,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+5PV5sgZLyPbVE3zUBRY0fT,KSI,Summer Is Over,ok,2684,error:ReadTimeout,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+28jg9LDVwisxGNGN8Wl2UD,Jamie Lidell,Little Bit of Feel Good,ok,1424,ok,1101,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+0mGsBesozk4lKqAtRfbVQp,Cafe Jazz,Soft Evening Light in the Cafe Cafe Jazz,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,not_found,0,http_404,0
+7mXSd6RV33PzXlOVDOclrY,Deep Sleep Music Collective,Soothing Stress Relief Piano,not_found,0,not_found,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+2mz0QjBZrwkNbJh2JaQ4RD,bbno$,pump it,ok,3259,ok,2398,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+1VRt8lQUdJwNGlsMfaJxKU,WALKMN,Lonely Night,not_found,0,not_found,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+2leodre2srmttuHWoO3061,Soulja Pey,Why I Tried?,not_found,0,not_found,0,search_hit,0,scrape_403,0,not_found,0,http_404,0
+59lNCXBP6UXgRcrSGy2p9T,Bakermat,Good Feeling (feat. Rhys Lewis),ok,2382,ok,1804,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+6YkSdEHAH7AY5usEYC4lxV,thonkg.ptt,Love Is remake,not_found,0,error:ReadTimeout,0,not_found,0,scrape_403,0,error:ConnectionError,0,http_404,0
+2yLKNpustSKxvDX2lwNGDT,ARTSALGHUL,faaj1,ok,2438,not_found,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+1rENS47PLnO8c7WIjRCD46,Dance Fruits Music,Calabria (feat. Nito-Onna & Lujavo),ok,2433,not_found,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+0yxAiM4nfDuB7HXW4FT0zB,Alder,Will You Let Me Down,ok,1532,error:ReadTimeout,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+60O9NfiehqYnxxhFL7qVDA,Lofi Blue Note,Meditation,not_found,0,error:ReadTimeout,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+4LNH0tjxKsdvtnH0gU4gzb,Myrtle Monsters,The Revolution Will Not Be Streamed (Ultra Chill),not_found,0,http_502,0,search_hit,0,scrape_403,0,error:ConnectionError,0,http_404,0
+3s3tZ3ZkUUCv0ZD7Vt1zDH,Chris Snelling,Jingle Bells (Arr. for Piano),not_found,0,error:ReadTimeout,0,not_found,0,scrape_403,0,error:ConnectionError,0,http_404,0

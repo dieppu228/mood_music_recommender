@@ -1,0 +1,48 @@
+{
+  "sample": 200,
+  "found_on_deezer": 80,
+  "found_pct": 40.0,
+  "exact_match": 68,
+  "with_preview": 80,
+  "preview_pct": 40.0,
+  "by_lang": {
+    "likely_asia_non_vn": {
+      "total": 3,
+      "with_preview": 0,
+      "preview_pct": 0.0
+    },
+    "likely_vn": {
+      "total": 29,
+      "with_preview": 11,
+      "preview_pct": 37.9
+    },
+    "likely_western_other": {
+      "total": 168,
+      "with_preview": 69,
+      "preview_pct": 41.1
+    }
+  },
+  "by_year": {
+    "2010_2019": {
+      "total": 28,
+      "with_preview": 10,
+      "preview_pct": 35.7
+    },
+    "2020_plus": {
+      "total": 157,
+      "with_preview": 64,
+      "preview_pct": 40.8
+    },
+    "pre_2010": {
+      "total": 9,
+      "with_preview": 3,
+      "preview_pct": 33.3
+    },
+    "unknown_year": {
+      "total": 6,
+      "with_preview": 3,
+      "preview_pct": 50.0
+    }
+  },
+  "note": "preview = mp3 30s -> librosa audio features (tempo/energy/MFCC), độc lập nhãn"
+}
