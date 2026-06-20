@@ -1,11 +1,13 @@
 """FastAPI entrypoint for the music mood agent."""
 
 import time
+from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, Response
 
 from music_agent.agent.graph import build_agent_graph
 from music_agent.agent.state import AgentState
@@ -98,3 +100,29 @@ def build_trace(state: AgentState) -> dict[str, Any]:
         "errors": state.errors,
         "tool_calls": [tool_call.model_dump(mode="json") for tool_call in state.tool_calls],
     }
+
+
+dashboard_path = Path(__file__).resolve().parents[3] / "app"
+
+
+@app.get("/", response_class=HTMLResponse)
+async def dashboard() -> str:
+    return (dashboard_path / "index.html").read_text(encoding="utf-8")
+
+
+@app.get("/main.js")
+async def dashboard_script() -> Response:
+    content = (dashboard_path / "main.js").read_text(encoding="utf-8")
+    return Response(content=content, media_type="text/javascript")
+
+
+@app.get("/styles.css")
+async def dashboard_styles() -> Response:
+    content = (dashboard_path / "styles.css").read_text(encoding="utf-8")
+    return Response(content=content, media_type="text/css")
+
+
+@app.get("/assets/mood-wave.svg")
+async def dashboard_image() -> Response:
+    content = (dashboard_path / "assets" / "mood-wave.svg").read_text(encoding="utf-8")
+    return Response(content=content, media_type="image/svg+xml")

@@ -20,6 +20,10 @@ const elements = {
   clearChat: document.querySelector("#clearChat"),
 };
 
+if (!["localhost", "127.0.0.1"].includes(window.location.hostname)) {
+  elements.apiUrl.value = window.location.origin;
+}
+
 elements.form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const message = elements.input.value.trim();

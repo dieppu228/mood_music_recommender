@@ -36,6 +36,15 @@ async def test_health_returns_ok() -> None:
 
 
 @pytest.mark.asyncio
+async def test_root_serves_dashboard() -> None:
+    async with make_test_client() as client:
+        response = await client.get("/")
+
+    assert response.status_code == 200
+    assert "Music Mood Agent Dashboard" in response.text
+
+
+@pytest.mark.asyncio
 async def test_cors_allows_local_dashboard_origin() -> None:
     async with make_test_client() as client:
         response = await client.options(
