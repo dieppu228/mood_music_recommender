@@ -1,3 +1,4 @@
+import json
 from contextlib import asynccontextmanager
 
 import anyio
@@ -7,6 +8,7 @@ from mcp.shared.memory import create_client_server_memory_streams
 from mcp.types import CallToolResult, TextContent
 
 from music_agent.mcp_server import rag_tool
+from music_agent.agent.trace import request_trace
 from music_agent.mcp_server.server import mcp
 from music_agent.models import MusicRagSearchResult, SongPayload
 from music_agent.tools.mcp_client import McpToolClient
@@ -109,6 +111,24 @@ async def test_mcp_client_calls_tool_and_returns_payload() -> None:
 
 
 @pytest.mark.asyncio
+async def test_mcp_client_records_call_input_and_result(tmp_path) -> None:
+    client = McpToolClient(
+        server_url="http://localhost:8001/mcp",
+        streamable_client=FakeStreamableClient,
+        session_cls=make_session(structured_result({"ok": True, "result_count": 1})),
+    )
+    log_path = tmp_path / "agent_loop.jsonl"
+
+    with request_trace("request-1", log_path):
+        await client.call_tool("music_rag_search", {"query": "calm healing"})
+
+    events = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
+    assert [event["event"] for event in events] == ["mcp_call_started", "mcp_call_completed"]
+    assert events[0]["tool_input"] == {"query": "calm healing"}
+    assert events[1]["result"] == {"ok": True, "result_count": 1}
+
+
+@pytest.mark.asyncio
 async def test_mcp_client_parses_json_text_fallback() -> None:
     client = McpToolClient(
         streamable_client=FakeStreamableClient,
@@ -169,7 +189,6 @@ class InMemoryFakeStore:
             song_id="s1",
             title="After Rain",
             artist="Local Echo",
-            artists=["Local Echo"],
             metadata_summary="sad healing recovery",
             mood=["sad", "healing"],
             genres=["indie pop"],

@@ -177,6 +177,113 @@ async def test_e2e_sad_healing_returns_fixture_rag_recommendations(tmp_path: Pat
 
 
 @pytest.mark.asyncio
+async def test_e2e_current_sadness_rewrites_to_canonical_uplifting_targets(tmp_path: Path) -> None:
+    store = build_store(
+        tmp_path,
+        [song("calm-001", "Quiet Light", "Mina Vale", "calm happy healing")],
+    )
+    llm = FakeLlmClient(
+        [
+            think_call_rag(
+                "calm happy healing music",
+                mood_terms=["calm", "happy"],
+                current_moods=["sad"],
+                target_moods=["calm", "happy"],
+            ),
+            think_respond(AgentIntent.MUSIC_RECOMMENDATION, "Use RAG recommendations."),
+            final_draft("Mình chọn vài bài nhẹ nhàng để tâm trạng sáng hơn."),
+        ]
+    )
+    mcp = E2EMcpClient(store=store)
+    override_graph(build_agent_graph(llm_client=llm, mcp_client=mcp))
+
+    response = await post_chat({"message": "Tao đang buồn quá", "debug": True})
+
+    tool_input = response["tool_calls"][0]["tool_input"]
+    assert tool_input["mood_terms"] == ["calm", "happy"]
+    assert "sad" not in tool_input["query"]
+    assert response["trace"]["entities"]["mood_terms"] == ["sad"]
+    assert response["trace"]["entities"]["target_mood_terms"] == ["calm", "happy"]
+
+
+@pytest.mark.asyncio
+async def test_e2e_explicit_sad_music_request_keeps_sad_target(tmp_path: Path) -> None:
+    store = build_store(tmp_path, [song("sad-001", "After Rain", "Local Echo", "sad music")])
+    llm = FakeLlmClient(
+        [
+            think_call_rag(
+                "sad music",
+                mood_terms=["sad"],
+                current_moods=["sad"],
+                target_moods=["sad"],
+            ),
+            think_respond(AgentIntent.MUSIC_RECOMMENDATION, "Use RAG recommendations."),
+            final_draft("Đây là vài bài buồn đúng yêu cầu."),
+        ]
+    )
+    mcp = E2EMcpClient(store=store)
+    override_graph(build_agent_graph(llm_client=llm, mcp_client=mcp))
+
+    response = await post_chat({"message": "Tao buồn, cho tao nghe nhạc buồn", "debug": True})
+
+    assert response["tool_calls"][0]["tool_input"]["mood_terms"] == ["sad"]
+    assert response["trace"]["entities"]["target_mood_terms"] == ["sad"]
+
+
+@pytest.mark.asyncio
+async def test_e2e_insult_routes_to_calm_rag_and_apologizes(tmp_path: Path) -> None:
+    store = build_store(tmp_path, [song("calm-001", "Quiet Light", "Mina Vale", "calm soothing")])
+    llm = FakeLlmClient(
+        [
+            think_call_rag(
+                "calm soothing music",
+                mood_terms=["calm"],
+                current_moods=["angry", "frustrated"],
+                target_moods=["calm"],
+                requires_apology=True,
+            ),
+            think_respond(AgentIntent.MUSIC_RECOMMENDATION, "Apologize and use RAG evidence."),
+            final_draft("Mình xin lỗi vì trải nghiệm chưa tốt. Nghe thử Quiet Light nhé."),
+        ]
+    )
+    mcp = E2EMcpClient(store=store)
+    override_graph(build_agent_graph(llm_client=llm, mcp_client=mcp))
+
+    response = await post_chat({"message": "Bot ngu quá", "debug": True})
+
+    assert [call["tool_name"] for call in response["tool_calls"]] == ["music_rag_search"]
+    assert response["tool_calls"][0]["tool_input"]["mood_terms"] == ["calm"]
+    assert response["trace"]["entities"]["requires_apology"] is True
+    assert "xin lỗi" in response["answer"].lower()
+
+
+@pytest.mark.asyncio
+async def test_e2e_insult_with_rag_failure_apologizes_without_fabricating_song(
+    tmp_path: Path,
+) -> None:
+    store = build_store(tmp_path, [])
+    llm = FakeLlmClient(
+        [
+            think_respond(AgentIntent.SMALLTALK, "Direct response."),
+            think_respond(AgentIntent.MUSIC_RECOMMENDATION, "Apologize without songs."),
+            final_draft(
+                "Mình xin lỗi vì trải nghiệm chưa tốt. Hiện mình chưa tìm được bài phù hợp.",
+                status=AgentStatus.FAILED,
+            ),
+        ]
+    )
+    mcp = E2EMcpClient(store=store, fail_tools={str(ToolName.MUSIC_RAG_SEARCH)})
+    override_graph(build_agent_graph(llm_client=llm, mcp_client=mcp))
+
+    response = await post_chat({"message": "Bot ngu quá", "debug": True})
+
+    assert response["status"] == "failed"
+    assert response["recommendations"] == []
+    assert response["trace"]["entities"]["requires_apology"] is True
+    assert "xin lỗi" in response["answer"].lower()
+
+
+@pytest.mark.asyncio
 async def test_e2e_unknown_recommendation_falls_back_from_rag_to_web(tmp_path: Path) -> None:
     store = build_store(tmp_path, [])
     llm = FakeLlmClient(
@@ -277,26 +384,14 @@ def song(song_id: str, title: str, artist: str, summary: str) -> dict[str, Any]:
         "song_id": song_id,
         "title": title,
         "artist": artist,
-        "artists": [artist],
         "album": "E2E Album",
-        "release_date": "2024-01-01",
-        "release_year": 2024,
-        "duration_ms": 180000,
-        "popularity": 50,
-        "explicit": False,
         "metadata_summary": summary,
         "lyrics_summary": summary,
-        "lyrics_available": True,
         "mood": ["sad", "healing"] if "sad" in summary else ["rare"],
         "genres": ["indie pop"],
         "tags": ["rain"] if "healing" in summary else ["unknown"],
         "preview_url": None,
         "spotify_url": f"https://open.spotify.com/track/{song_id}",
-        "source_name": "E2E Test",
-        "source_type": "mock",
-        "search_query": summary,
-        "mood_inferred": False,
-        "data_origin": "test",
         "payload_version": "v1",
     }
 
@@ -317,13 +412,23 @@ def tool_wrapper(
     }
 
 
-def think_call_rag(query: str, mood_terms: list[str] | None = None) -> dict[str, Any]:
+def think_call_rag(
+    query: str,
+    mood_terms: list[str] | None = None,
+    *,
+    current_moods: list[str] | None = None,
+    target_moods: list[str] | None = None,
+    requires_apology: bool = False,
+) -> dict[str, Any]:
+    mood_terms = mood_terms or []
     return {
         "thought": "Need fixture RAG.",
         "action": "call_tool",
         "intent": AgentIntent.MUSIC_RECOMMENDATION,
         "entities": {
-            "mood_terms": mood_terms or [],
+            "mood_terms": current_moods if current_moods is not None else mood_terms,
+            "target_mood_terms": target_moods or [],
+            "requires_apology": requires_apology,
             "genres": [],
             "tags": [],
             "constraints": [],
@@ -331,7 +436,7 @@ def think_call_rag(query: str, mood_terms: list[str] | None = None) -> dict[str,
         "tool_name": "music_rag_search",
         "tool_input": {
             "query": query,
-            "mood_terms": mood_terms or [],
+            "mood_terms": mood_terms,
             "genres": [],
             "tags": [],
             "artist": None,

@@ -46,6 +46,22 @@ def test_think_prompt_allows_only_call_tool_or_respond_and_json_only() -> None:
     assert "tool_input" in prompt
 
 
+def test_think_prompt_defines_canonical_target_mood_and_explicit_preference() -> None:
+    prompt = read_prompt("nodes/think.md").lower()
+
+    assert "target_mood_terms" in prompt
+    assert "requires_apology" in prompt
+    assert "happy" in prompt
+    assert "sad" in prompt
+    assert "calm" in prompt
+    assert "energetic" in prompt
+    assert "romantic" in prompt
+    assert "stressed" in prompt
+    assert "explicit" in prompt
+    assert "tool_input.query" in prompt
+    assert "không đưa mood hiện tại" in prompt
+
+
 def test_act_prompt_is_code_contract_for_planned_tool_only() -> None:
     prompt = read_prompt("nodes/act.md").lower()
 
@@ -76,3 +92,5 @@ def test_final_prompt_hides_scratchpad_and_disallows_llm_trace() -> None:
     assert '"status"' in prompt
     assert '"answer"' in prompt
     assert '"recommendations"' in prompt
+    assert "requires_apology" in prompt
+    assert "xin lỗi" in prompt

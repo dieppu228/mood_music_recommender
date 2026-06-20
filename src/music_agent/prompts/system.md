@@ -61,6 +61,10 @@ Input schema:
 }
 ```
 
+`mood_terms` trong tool input là mood mục tiêu để retrieve, chỉ nhận một hoặc nhiều giá trị
+trong `happy`, `sad`, `calm`, `energetic`, `romantic`, `stressed`. Mood hiện tại của user
+được giữ riêng trong entities của node `think`.
+
 Output kỳ vọng:
 - Danh sách bài hát có `song_id`, `title`, `artist`, `mood`, `genres`, `tags`,
   `preview_url`, `score`.

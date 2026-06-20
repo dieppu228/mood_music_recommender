@@ -36,6 +36,22 @@ async def test_health_returns_ok() -> None:
 
 
 @pytest.mark.asyncio
+async def test_cors_allows_local_dashboard_origin() -> None:
+    async with make_test_client() as client:
+        response = await client.options(
+            "/v1/chat",
+            headers={
+                "Origin": "http://localhost:5173",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+@pytest.mark.asyncio
 async def test_chat_rejects_empty_message() -> None:
     async with make_test_client() as client:
         response = await client.post("/v1/chat", json={"message": ""})

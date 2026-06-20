@@ -13,7 +13,6 @@ class SuccessfulStore:
             song_id="mock-001",
             title="After Rain",
             artist="Local Echo",
-            artists=["Local Echo"],
             metadata_summary="sad healing recovery",
             mood=["sad", "healing"],
             genres=["indie pop"],

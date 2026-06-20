@@ -7,6 +7,7 @@ from langgraph.types import Command
 
 from music_agent.agent.nodes import act_node, final_node, observe_node, think_node
 from music_agent.agent.state import AgentState
+from music_agent.agent.trace import write_trace_event
 from music_agent.llm_client import LlmClient
 from music_agent.tools.mcp_client import McpToolClient
 
@@ -38,22 +39,55 @@ def build_agent_graph(
 
     async def think(state: AgentGraphState) -> Command:
         parsed = coerce_state(state)
+        write_trace_event("node_started", node="think", state=trace_state(parsed))
         updated = await think_node(parsed, llm_client=llm_client)
-        return Command(update=state_update(updated), goto=route_after_think(updated))
+        next_node = route_after_think(updated)
+        rewritten_query = None
+        if updated.planned_tool is not None:
+            rewritten_query = updated.planned_tool.tool_input.get("query")
+        write_trace_event(
+            "node_completed",
+            node="think",
+            next_node=next_node,
+            rewritten_query=rewritten_query,
+            state=trace_state(updated),
+        )
+        return Command(update=state_update(updated), goto=next_node)
 
     async def act(state: AgentGraphState) -> Command:
         parsed = coerce_state(state)
+        write_trace_event("node_started", node="act", state=trace_state(parsed))
         updated = await act_node(parsed, mcp_client=mcp_client)
+        write_trace_event(
+            "node_completed",
+            node="act",
+            next_node="observe",
+            state=trace_state(updated),
+        )
         return Command(update=state_update(updated), goto="observe")
 
     async def observe(state: AgentGraphState) -> Command:
         parsed = coerce_state(state)
+        write_trace_event("node_started", node="observe", state=trace_state(parsed))
         updated = await observe_node(parsed)
+        write_trace_event(
+            "node_completed",
+            node="observe",
+            next_node="think",
+            state=trace_state(updated),
+        )
         return Command(update=state_update(updated), goto="think")
 
     async def final(state: AgentGraphState) -> Command:
         parsed = coerce_state(state)
+        write_trace_event("node_started", node="final", state=trace_state(parsed))
         updated = await final_node(parsed, llm_client=llm_client)
+        write_trace_event(
+            "node_completed",
+            node="final",
+            next_node="end",
+            state=trace_state(updated),
+        )
         return Command(update=state_update(updated), goto=END)
 
     graph.add_node("think", think)
@@ -77,3 +111,7 @@ def coerce_state(state: AgentState | dict[str, Any]) -> AgentState:
 
 def state_update(state: AgentState) -> dict[str, Any]:
     return state.model_dump(mode="python")
+
+
+def trace_state(state: AgentState) -> dict[str, Any]:
+    return state.model_dump(mode="json")

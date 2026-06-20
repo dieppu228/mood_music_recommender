@@ -19,6 +19,15 @@ class AgentIntent(StrEnum):
     OUT_OF_DOMAIN = "out_of_domain"
 
 
+class CanonicalMood(StrEnum):
+    HAPPY = "happy"
+    SAD = "sad"
+    CALM = "calm"
+    ENERGETIC = "energetic"
+    ROMANTIC = "romantic"
+    STRESSED = "stressed"
+
+
 class ToolName(StrEnum):
     MUSIC_RAG_SEARCH = "music_rag_search"
     WEB_SEARCH = "web_search"
@@ -38,26 +47,14 @@ class SongPayload(BaseModel):
     song_id: str
     title: str
     artist: str
-    artists: list[str] = Field(default_factory=list)
     album: str | None = None
-    release_date: str | None = None
-    release_year: int | None = None
-    duration_ms: int | None = None
-    popularity: int | None = None
-    explicit: bool = False
     metadata_summary: str
     lyrics_summary: str | None = None
-    lyrics_available: bool = False
     mood: list[str] = Field(default_factory=list)
     genres: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     preview_url: str | None = None
     spotify_url: str | None = None
-    source_name: str | None = None
-    source_type: str | None = None
-    search_query: str | None = None
-    mood_inferred: bool = False
-    data_origin: str = "mock"
     payload_version: str = "v1"
 
     @field_validator("title", "artist", "metadata_summary")
@@ -67,14 +64,6 @@ class SongPayload(BaseModel):
         if not value:
             raise ValueError("must not be empty")
         return value
-
-    @field_validator("artists", mode="after")
-    @classmethod
-    def require_artists(cls, value: list[str]) -> list[str]:
-        cleaned = [item.strip() for item in value if item.strip()]
-        if not cleaned:
-            raise ValueError("must include at least one artist")
-        return cleaned
 
 class Recommendation(BaseModel):
     song_id: str
@@ -115,6 +104,8 @@ class ChatResponse(BaseModel):
 
 class ExtractedEntities(BaseModel):
     mood_terms: list[str] = Field(default_factory=list)
+    target_mood_terms: list[CanonicalMood] = Field(default_factory=list)
+    requires_apology: bool = False
     genres: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     artist: str | None = None

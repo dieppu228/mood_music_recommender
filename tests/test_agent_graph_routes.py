@@ -1,7 +1,10 @@
+import json
+
 import pytest
 
 from music_agent.agent.graph import build_agent_graph
 from music_agent.agent.state import AgentState
+from music_agent.agent.trace import request_trace
 from music_agent.models import AgentIntent, AgentStatus, ToolName, WebSearchIntent
 
 
@@ -73,6 +76,33 @@ async def test_mood_recommendation_routes_rag_observe_think_final() -> None:
     assert state.iteration_count == 1
     assert state.scratchpad["enough_context"] is True
     assert state.recommendations[0].reason == "Hợp mood sad/healing."
+
+
+@pytest.mark.asyncio
+async def test_agent_trace_records_each_node_and_rewritten_query(tmp_path) -> None:
+    llm = FakeLlmClient(
+        [
+            think_call_rag(),
+            think_respond(AgentIntent.MUSIC_RECOMMENDATION, "Use RAG recommendations."),
+            final_draft("Có 1 bài hợp mood."),
+        ]
+    )
+    graph = build_agent_graph(
+        llm_client=llm,
+        mcp_client=FakeMcpClient([rag_wrapper([rag_song(score=0.92)])]),
+    )
+    log_path = tmp_path / "agent_loop.jsonl"
+
+    with request_trace("request-1", log_path):
+        await graph.ainvoke(
+            AgentState(user_message="goi y nhac buon healing").model_dump(mode="python")
+        )
+
+    events = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
+    completed = [event for event in events if event["event"] == "node_completed"]
+    assert [event["node"] for event in completed] == ["think", "act", "observe", "think", "final"]
+    assert completed[0]["rewritten_query"] == "sad healing songs"
+    assert completed[0]["state"]["planned_tool"]["tool_input"]["query"] == "sad healing songs"
 
 
 @pytest.mark.asyncio

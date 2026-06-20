@@ -1,12 +1,13 @@
-"""OpenAI-compatible async LLM client adapter."""
+"""Gemini direct async LLM client adapter."""
 
 from __future__ import annotations
 
 import json
 import re
-from typing import TypeVar
+from typing import Any, TypeVar
 
-from openai import AsyncOpenAI
+from google import genai
+from google.genai import types
 from pydantic import BaseModel, ValidationError
 
 from music_agent.config import Settings, get_settings
@@ -24,14 +25,11 @@ class LlmOutputError(ValueError):
 
 
 class LlmClient:
-    """Thin async adapter for structured and text completions."""
+    """Thin async adapter for Gemini structured and text completions."""
 
-    def __init__(self, client: AsyncOpenAI | None = None, settings: Settings | None = None) -> None:
+    def __init__(self, client: Any | None = None, settings: Settings | None = None) -> None:
         self.settings = settings or get_settings()
-        self.client = client or AsyncOpenAI(
-            base_url=self.settings.llm_base_url,
-            api_key=self.settings.llm_api_key or "unused",
-        )
+        self.client = client or genai.Client(api_key=self.settings.gemini_api_key or "unused")
         self.model = self.settings.llm_model
 
     async def complete_json(
@@ -41,14 +39,14 @@ class LlmClient:
         response_model: type[T],
         temperature: float = 0.0,
     ) -> T:
-        response = await self.client.chat.completions.create(
+        response = await self.client.aio.models.generate_content(
             model=self.model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            temperature=temperature,
-            response_format={"type": "json_object"},
+            contents=user_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                temperature=temperature,
+                response_mime_type="application/json",
+            ),
         )
         raw_text = extract_message_text(response)
         json_text = strip_json_code_fence(raw_text)
@@ -76,36 +74,24 @@ class LlmClient:
         user_prompt: str,
         temperature: float = 0.7,
     ) -> str:
-        response = await self.client.chat.completions.create(
+        response = await self.client.aio.models.generate_content(
             model=self.model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            temperature=temperature,
+            contents=user_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                temperature=temperature,
+            ),
         )
         return extract_message_text(response)
 
 
 def extract_message_text(response: object) -> str:
-    """Extract plain text from an OpenAI-compatible chat completion response."""
+    """Extract plain text from a Gemini generate_content response."""
 
-    choices = getattr(response, "choices", None) or []
-    if not choices:
-        return ""
-    message = getattr(choices[0], "message", None)
-    content = getattr(message, "content", "")
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        parts = []
-        for item in content:
-            if isinstance(item, dict) and item.get("type") == "text":
-                parts.append(str(item.get("text", "")))
-            else:
-                parts.append(str(item))
-        return "".join(parts)
-    return str(content)
+    text = getattr(response, "text", None)
+    if isinstance(text, str):
+        return text
+    return str(text or "")
 
 
 def strip_json_code_fence(text: str) -> str:

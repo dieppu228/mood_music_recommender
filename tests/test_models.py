@@ -3,8 +3,10 @@ from pydantic import ValidationError
 
 from music_agent.models import (
     AgentStatus,
+    CanonicalMood,
     ChatRequest,
     ChatResponse,
+    ExtractedEntities,
     MusicRagSearchInput,
     PlannedToolCall,
     SongPayload,
@@ -57,7 +59,6 @@ def test_song_payload_validates_chunk_payload() -> None:
         song_id="mock-001",
         title="After Rain",
         artist="Local Echo",
-        artists=["Local Echo"],
         metadata_summary="A reflective song about sadness and recovery.",
         lyrics_summary="A song about becoming lighter after grief.",
         mood=["sad", "healing"],
@@ -65,8 +66,36 @@ def test_song_payload_validates_chunk_payload() -> None:
         tags=["rain", "night"],
     )
     assert payload.title == "After Rain"
-    assert payload.lyrics_available is False
     assert payload.tags == ["rain", "night"]
+    assert set(payload.model_dump()) == {
+        "chunk_id",
+        "song_id",
+        "title",
+        "artist",
+        "album",
+        "metadata_summary",
+        "lyrics_summary",
+        "mood",
+        "genres",
+        "tags",
+        "preview_url",
+        "spotify_url",
+        "payload_version",
+    }
+
+
+def test_extracted_entities_accepts_only_canonical_target_moods() -> None:
+    entities = ExtractedEntities(
+        mood_terms=["buon"],
+        target_mood_terms=["calm", "happy"],
+        requires_apology=True,
+    )
+
+    assert entities.target_mood_terms == [CanonicalMood.CALM, CanonicalMood.HAPPY]
+    assert entities.requires_apology is True
+
+    with pytest.raises(ValidationError):
+        ExtractedEntities(target_mood_terms=["healing"])
 
 
 def test_planned_tool_call_accepts_known_tool_name() -> None:

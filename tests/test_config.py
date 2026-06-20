@@ -6,7 +6,6 @@ def test_settings_defaults_are_localhost() -> None:
     assert settings.api_host == "localhost"
     assert settings.mcp_host == "localhost"
     assert settings.mcp_server_url == "http://localhost:8001/mcp"
-    assert settings.llm_base_url == "http://localhost:4000/v1"
     assert settings.qdrant_url == "http://localhost:6333"
 
 
@@ -18,4 +17,6 @@ def test_model_defaults_follow_plan() -> None:
     assert settings.embedding_output_dimensionality == 768
     assert settings.embedding_document_task_type == "RETRIEVAL_DOCUMENT"
     assert settings.embedding_query_task_type == "RETRIEVAL_QUERY"
-    assert settings.mock_song_path == "data/mock_songs.jsonl"
+    assert settings.embedding_cache_path == "data/spotify_songs.embeddings.npy"
+    assert settings.agent_trace_log_path == "logs/agent_loop.jsonl"
+    assert settings.mock_song_path == "data/spotify_songs.jsonl"

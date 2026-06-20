@@ -18,9 +18,7 @@ class Settings(BaseSettings):
     mcp_port: int = 8001
     mcp_server_url: str = "http://localhost:8001/mcp"
 
-    llm_base_url: str = "http://localhost:4000/v1"
     llm_model: str = "gemini-2.5-flash-lite"
-    llm_api_key: str = Field(default="", repr=False)
 
     gemini_api_key: str = Field(default="", repr=False)
     embedding_provider: str = "gemini"
@@ -28,9 +26,11 @@ class Settings(BaseSettings):
     embedding_output_dimensionality: int = 768
     embedding_document_task_type: str = "RETRIEVAL_DOCUMENT"
     embedding_query_task_type: str = "RETRIEVAL_QUERY"
+    embedding_cache_path: str = "data/spotify_songs.embeddings.npy"
 
     tavily_api_key: str = Field(default="", repr=False)
-    mock_song_path: str = "data/mock_songs.jsonl"
+    mock_song_path: str = "data/spotify_songs.jsonl"
+    agent_trace_log_path: str = "logs/agent_loop.jsonl"
 
     qdrant_url: str = "http://localhost:6333"
     qdrant_collection: str = "music_songs"

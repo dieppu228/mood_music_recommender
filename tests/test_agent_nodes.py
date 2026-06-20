@@ -38,12 +38,28 @@ class FakeMcpClient:
         return self.outputs.pop(0)
 
 
-def think_call(tool_name=ToolName.MUSIC_RAG_SEARCH, tool_input=None) -> dict:
+def think_call(
+    tool_name=ToolName.MUSIC_RAG_SEARCH,
+    tool_input=None,
+    *,
+    current_moods=None,
+    target_moods=None,
+    requires_apology=False,
+) -> dict:
+    current_moods = current_moods or ["sad"]
+    target_moods = target_moods or []
     return {
         "thought": "Need tool evidence.",
         "action": "call_tool",
         "intent": AgentIntent.MUSIC_RECOMMENDATION,
-        "entities": {"mood_terms": ["sad"], "genres": [], "tags": [], "constraints": []},
+        "entities": {
+            "mood_terms": current_moods,
+            "target_mood_terms": target_moods,
+            "requires_apology": requires_apology,
+            "genres": [],
+            "tags": [],
+            "constraints": [],
+        },
         "tool_name": tool_name,
         "tool_input": tool_input
         or {
@@ -126,6 +142,30 @@ async def test_think_sets_planned_tool_for_call_tool() -> None:
     assert result.planned_tool.tool_name == ToolName.MUSIC_RAG_SEARCH
     assert result.intent == AgentIntent.MUSIC_RECOMMENDATION
     assert result.confidence == 0.8
+
+
+@pytest.mark.asyncio
+async def test_think_preserves_current_and_target_moods_for_debug_trace() -> None:
+    state = AgentState(user_message="Tao đang buồn quá")
+    llm = FakeLlmClient(
+        [
+            think_call(
+                tool_input={
+                    "query": "calm happy healing music",
+                    "mood_terms": ["calm", "happy"],
+                    "limit": 5,
+                },
+                current_moods=["sad"],
+                target_moods=["calm", "happy"],
+            )
+        ]
+    )
+
+    result = await think_node(state, llm_client=llm)
+
+    assert result.entities.mood_terms == ["sad"]
+    assert [str(mood) for mood in result.entities.target_mood_terms] == ["calm", "happy"]
+    assert "sad" not in result.planned_tool.tool_input["query"]
 
 
 @pytest.mark.asyncio

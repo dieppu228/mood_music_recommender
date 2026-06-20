@@ -10,6 +10,7 @@ from typing import Any
 from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
 
+from music_agent.agent.trace import write_trace_event
 from music_agent.config import Settings, get_settings
 
 
@@ -34,6 +35,12 @@ class McpToolClient:
         """Call one MCP tool and return a stable wrapper."""
 
         start = time.perf_counter()
+        write_trace_event(
+            "mcp_call_started",
+            tool_name=tool_name,
+            tool_input=tool_input,
+            server_url=self.server_url,
+        )
         try:
             async with self.streamable_client(self.server_url, timeout=self.timeout) as (
                 read_stream,
@@ -44,7 +51,7 @@ class McpToolClient:
                     await session.initialize()
                     result = await session.call_tool(tool_name, tool_input)
         except Exception as exc:  # noqa: BLE001 - transport boundary returns structured errors.
-            return self._wrap(
+            return self._trace_result(self._wrap(
                 ok=False,
                 tool_name=tool_name,
                 start=start,
@@ -53,11 +60,11 @@ class McpToolClient:
                     "error_code": "mcp_transport_error",
                     "error": str(exc),
                 },
-            )
+            ))
 
         payload = extract_tool_payload(result)
         if getattr(result, "isError", False):
-            return self._wrap(
+            return self._trace_result(self._wrap(
                 ok=False,
                 tool_name=tool_name,
                 start=start,
@@ -66,15 +73,19 @@ class McpToolClient:
                     "error_code": "mcp_tool_error",
                     "error": payload,
                 },
-            )
+            ))
 
-        return self._wrap(
+        return self._trace_result(self._wrap(
             ok=True,
             tool_name=tool_name,
             start=start,
             result=payload,
             error=None,
-        )
+        ))
+
+    def _trace_result(self, wrapper: dict[str, Any]) -> dict[str, Any]:
+        write_trace_event("mcp_call_completed", **wrapper)
+        return wrapper
 
     def _wrap(
         self,

@@ -1,13 +1,17 @@
 import json
 from collections.abc import Sequence
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+from music_agent.config import Settings
 from music_agent.models import MusicRagSearchInput
 from music_agent.retrieval.fixture_store import (
+    FIELD_WEIGHTS,
     FixtureSongStore,
     FixtureStoreError,
+    GeminiEmbeddingClient,
     cosine_similarity,
 )
 
@@ -47,6 +51,29 @@ class KeywordEmbeddingClient:
         return vector
 
 
+class FakeGeminiModels:
+    def __init__(self) -> None:
+        self.calls = []
+
+    def embed_content(self, *, model, contents, config):
+        self.calls.append({"model": model, "contents": contents, "config": config})
+        return SimpleNamespace(
+            embeddings=[SimpleNamespace(values=[float(len(text)), 1.0]) for text in contents]
+        )
+
+
+def test_gemini_document_embedding_batches_large_corpus() -> None:
+    models = FakeGeminiModels()
+    client = SimpleNamespace(models=models)
+    embedder = GeminiEmbeddingClient(Settings(_env_file=None), client=client, batch_size=100)
+
+    embeddings = embedder.embed_documents([f"song {index}" for index in range(205)])
+
+    assert len(embeddings) == 205
+    assert [len(call["contents"]) for call in models.calls] == [100, 100, 5]
+    assert all(call["config"].task_type == "RETRIEVAL_DOCUMENT" for call in models.calls)
+
+
 def write_jsonl(path: Path, rows: list[dict]) -> None:
     path.write_text(
         "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
@@ -70,26 +97,14 @@ def song(
         "song_id": song_id,
         "title": title,
         "artist": artist,
-        "artists": [artist],
         "album": "Test Album",
-        "release_date": "2024-01-01",
-        "release_year": 2024,
-        "duration_ms": 180000,
-        "popularity": 50,
-        "explicit": False,
         "metadata_summary": metadata_summary,
         "lyrics_summary": metadata_summary,
-        "lyrics_available": True,
         "mood": mood or [],
         "genres": genres or [],
         "tags": tags or [],
         "preview_url": preview_url,
         "spotify_url": f"https://open.spotify.com/track/{song_id}",
-        "source_name": "Unit Test",
-        "source_type": "mock",
-        "search_query": "unit test",
-        "mood_inferred": False,
-        "data_origin": "test",
         "payload_version": "v1",
     }
 
@@ -157,6 +172,7 @@ def test_builds_searchable_text_from_summary_mood_genres_and_tags(tmp_path: Path
 
     text = store.build_document_text(record)
 
+    assert "artist:" not in text
     assert "metadata_summary: late night memory comfort" in text
     assert "lyrics_summary: late night memory comfort" in text
     assert "mood: lonely, calm" in text
@@ -218,7 +234,7 @@ def test_ranks_sad_healing_song_above_unrelated_energetic_song(tmp_path: Path) -
     assert sad_score > energy_score
 
 
-def test_applies_artist_boost_when_artist_is_provided(tmp_path: Path) -> None:
+def test_artist_is_an_exact_filter_not_a_score_component(tmp_path: Path) -> None:
     path = tmp_path / "songs.jsonl"
     write_jsonl(
         path,
@@ -229,15 +245,29 @@ def test_applies_artist_boost_when_artist_is_provided(tmp_path: Path) -> None:
     )
     store = FixtureSongStore(path, embedding_client=KeywordEmbeddingClient())
 
-    result = store.search(
-        MusicRagSearchInput(query="sad healing", mood_terms=["sad"], artist="Local Echo", limit=2)
-    )
+    result = store.search(MusicRagSearchInput(query="sad healing", artist="Local Echo", limit=2))
 
-    assert result.results[0].song_id == "local"
-    assert (
-        result.diagnostics["score_details"]["local"]["metadata_boost"]
-        > result.diagnostics["score_details"]["other"]["metadata_boost"]
+    assert [record.song_id for record in result.results] == ["local"]
+    assert "other" not in result.diagnostics["score_details"]
+
+
+def test_weights_sum_to_one_and_split_list_weight_per_query_keyword(tmp_path: Path) -> None:
+    path = tmp_path / "songs.jsonl"
+    write_jsonl(
+        path,
+        [song("s1", "Quiet Room", "Mina Vale", "calm", mood=["calm"])],
     )
+    store = FixtureSongStore(path, embedding_client=KeywordEmbeddingClient())
+
+    result = store.search(
+        MusicRagSearchInput(query="calm happy", mood_terms=["calm", "happy"], limit=1)
+    )
+    details = result.diagnostics["score_details"]["s1"]
+
+    assert sum(FIELD_WEIGHTS.values()) == pytest.approx(1.0)
+    assert details["mood_score"] == pytest.approx(FIELD_WEIGHTS["mood"] / 2)
+    assert details["genre_score"] == 0.0
+    assert details["tag_score"] == 0.0
 
 
 def test_handles_empty_optional_preview_url(tmp_path: Path) -> None:
@@ -280,6 +310,56 @@ def test_builds_document_embeddings_lazily_once(tmp_path: Path) -> None:
     assert embedder.query_calls == 2
 
 
+def test_loads_persisted_embeddings_without_reembedding_documents(tmp_path: Path) -> None:
+    path = tmp_path / "songs.jsonl"
+    cache_path = tmp_path / "songs.embeddings.npy"
+    write_jsonl(path, [song("s1", "After Rain", "Local Echo", "sad healing")])
+    settings = Settings(_env_file=None, embedding_output_dimensionality=8)
+    builder = KeywordEmbeddingClient()
+    FixtureSongStore(
+        path,
+        embedding_client=builder,
+        settings=settings,
+        embedding_cache_path=cache_path,
+    ).build_embedding_cache()
+
+    runtime_embedder = KeywordEmbeddingClient()
+    store = FixtureSongStore(
+        path,
+        embedding_client=runtime_embedder,
+        settings=settings,
+        embedding_cache_path=cache_path,
+    )
+    result = store.search(MusicRagSearchInput(query="sad", limit=1))
+
+    assert result.results[0].song_id == "s1"
+    assert runtime_embedder.document_calls == 0
+    assert runtime_embedder.query_calls == 1
+
+
+def test_rejects_embedding_cache_after_corpus_changes(tmp_path: Path) -> None:
+    path = tmp_path / "songs.jsonl"
+    cache_path = tmp_path / "songs.embeddings.npy"
+    settings = Settings(_env_file=None, embedding_output_dimensionality=8)
+    write_jsonl(path, [song("s1", "After Rain", "Local Echo", "sad healing")])
+    store = FixtureSongStore(
+        path,
+        embedding_client=KeywordEmbeddingClient(),
+        settings=settings,
+        embedding_cache_path=cache_path,
+    )
+    store.build_embedding_cache()
+    write_jsonl(path, [song("s2", "Neon Run", "Pulse City", "energetic workout")])
+
+    with pytest.raises(FixtureStoreError, match="stale or incompatible"):
+        FixtureSongStore(
+            path,
+            embedding_client=KeywordEmbeddingClient(),
+            settings=settings,
+            embedding_cache_path=cache_path,
+        ).ensure_index()
+
+
 def test_builds_query_text_from_extracted_metadata(tmp_path: Path) -> None:
     store = FixtureSongStore(tmp_path / "unused.jsonl", embedding_client=KeywordEmbeddingClient())
 
@@ -297,7 +377,7 @@ def test_builds_query_text_from_extracted_metadata(tmp_path: Path) -> None:
     assert "mood_terms: sad, healing" in text
     assert "genres: indie pop" in text
     assert "tags: rain" in text
-    assert "artist: Local Echo" in text
+    assert "artist:" not in text
 
 
 def test_cosine_similarity_rejects_dimension_mismatch() -> None:

@@ -1,0 +1,9 @@
+{
+  "corpus_path": "data/spotify_songs.jsonl",
+  "corpus_sha256": "07bf8465db1d0bfc4c4d47e10f2b8f5b01d85f94c02006f0d42356319a5f7f7d",
+  "record_count": 2261,
+  "embedding_model": "gemini-embedding-001",
+  "document_task_type": "RETRIEVAL_DOCUMENT",
+  "output_dimensionality": 768,
+  "dtype": "float32"
+}
