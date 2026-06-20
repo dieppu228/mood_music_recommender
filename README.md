@@ -16,7 +16,6 @@ All local services default to `localhost`:
 
 - API: `http://localhost:8000`
 - MCP server: `http://localhost:8001/mcp`
-- LLM gateway: `http://localhost:4000/v1`
 - Future Qdrant: `http://localhost:6333`
 
 ## Environment
@@ -24,23 +23,32 @@ All local services default to `localhost`:
 Required for live local runs:
 
 ```bash
-LLM_BASE_URL=http://localhost:4000/v1
 LLM_MODEL=gemini-2.5-flash-lite
-LLM_API_KEY=
 GEMINI_API_KEY=your-gemini-key
 MCP_SERVER_URL=http://localhost:8001/mcp
 TAVILY_API_KEY=your-tavily-key
-MOCK_SONG_PATH=data/mock_songs.jsonl
+MOCK_SONG_PATH=data/spotify_songs.jsonl
+EMBEDDING_CACHE_PATH=data/spotify_songs.embeddings.npy
 ```
 
 Notes:
 
 - Tests do not require real API keys or network access.
-- `GEMINI_API_KEY` is used by `gemini-embedding-001` for live fixture retrieval.
+- `GEMINI_API_KEY` is used for the direct Gemini LLM and `gemini-embedding-001` retrieval.
 - `TAVILY_API_KEY` is only needed when `web_search` should call Tavily.
-- V1 has no reranker. Retrieval uses cosine score plus deterministic metadata boost.
+- V1 has no reranker. Retrieval uses normalized weights: semantic `0.55`, mood `0.20`, genres
+  `0.20`, tags `0.05`. Artist is an exact payload filter and is not embedded or scored.
 
 ## Run Services
+
+Build the document embedding artifact whenever the corpus or embedding configuration changes:
+
+```bash
+python scripts/build_embedding_cache.py
+```
+
+The MCP service validates and loads this `.npy` artifact at runtime. It does not re-embed the
+corpus during startup or the first search.
 
 Terminal 1, run MCP tools:
 
@@ -67,6 +75,11 @@ Expected:
 ```json
 {"status":"ok"}
 ```
+
+Each `/v1/chat` request appends detailed agent-loop events to `logs/agent_loop.jsonl`.
+Events share a `request_id` and include node input/output, rewritten retrieval queries,
+MCP call input/result, routing, latency, and the final API response. Override the location with
+`AGENT_TRACE_LOG_PATH`.
 
 ## Chat API
 
@@ -146,13 +159,20 @@ When `debug=false`, `trace` is always `null`.
 
 ## Mock Song Data
 
-Default mock data lives at:
+Default V1 corpus lives at:
 
 ```text
-data/mock_songs.jsonl
+data/spotify_songs.jsonl
 ```
 
-Each line must be one `SongPayload` JSON object. Required fields:
+It is generated from the 2,261-row Spotify/Deezer snapshot:
+
+```bash
+python scripts/build_song_jsonl.py
+```
+
+This also regenerates `data/mock_songs.jsonl` as a balanced 30-song test sample. Each line is one
+lean `SongPayload` JSON object:
 
 ```json
 {
@@ -160,24 +180,17 @@ Each line must be one `SongPayload` JSON object. Required fields:
   "song_id": "mock-001",
   "title": "After Rain",
   "artist": "Local Echo",
-  "artists": ["Local Echo"],
-  "metadata_summary": "sad healing recovery",
-  "mood": ["sad", "healing"],
-  "genres": ["indie pop"],
-  "tags": ["rain"],
-  "data_origin": "mock",
+  "album": "Weather Inside",
+  "metadata_summary": "After Rain - Local Echo. Album: Weather Inside. Mood: calm.",
+  "lyrics_summary": null,
+  "mood": ["calm"],
+  "genres": [],
+  "tags": ["healing"],
+  "preview_url": "https://example.com/preview/mock-001",
+  "spotify_url": "https://open.spotify.com/track/mock-001",
   "payload_version": "v1"
 }
 ```
-
-Useful optional fields:
-
-- `lyrics_summary`
-- `preview_url`
-- `spotify_url`
-- `release_date`
-- `release_year`
-- `search_query`
 
 After adding songs, restart the MCP server so the fixture store reloads records.
 
@@ -214,3 +227,12 @@ same contracts:
 
 The adapter should replace retrieval behind the MCP `music_rag_search` tool without changing the
 agent graph, API response model, or prompt contracts.
+---------------------------------------------------------------------------
+MCP : source .venv/bin/activate
+uvicorn music_agent.mcp_server.server:app --host localhost --port 8001
+
+API: source .venv/bin/activate
+uvicorn music_agent.api.main:app --host localhost --port 8000
+
+UI: cd app
+python3 -m http.server 5173
