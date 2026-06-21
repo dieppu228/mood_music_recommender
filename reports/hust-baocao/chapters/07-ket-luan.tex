@@ -1,0 +1,48 @@
+\chapter*{Kết luận và hướng phát triển}
+\addcontentsline{toc}{chapter}{Kết luận và hướng phát triển}
+
+\section*{Kết quả}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tóm tắt kết quả pipeline dữ liệu}
+  \label{tab:ket-qua}
+  \begin{tabularx}{\textwidth}{@{}L{4.5cm}r@{}}
+    \toprule
+    \textbf{Thành phần} & \textbf{Quy mô} \\
+    \midrule
+    Metadata sau xử lý & 10.197 bài \\
+    Tập huấn luyện audio & 2.261 bài \\
+    Corpus gợi ý & 2.261 bài \\
+    Ma trận embedding & $2261 \times 768$ \\
+    Biểu đồ EDA & 5 biểu đồ \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Thí nghiệm leakage: accuracy TF-IDF giảm từ 0{,}993 (feature cũ) xuống 0{,}707 (chỉ metadata bài hát).
+
+\section*{Hạn chế}
+
+\begin{enumerate}[label=\arabic*.]
+  \item Nhãn yếu: 1.134 bài gán mặc định calm, 172 bài suy luận.
+  \item Spotify Dev Mode: thiếu thể loại, popularity, preview, audio features.
+  \item Lyrics: LRCLib 48{,}3\% trên mẫu 60 bài; V1 không dùng lời bài.
+  \item Deezer: 75{,}37\% đạt/3.000 mục tiêu; 210 bài không tìm thấy.
+  \item Retrieval V1: chỉ embedding văn bản; audio 54 chiều chưa vào score.
+\end{enumerate}
+
+\section*{Hướng phát triển}
+
+\begin{itemize}
+  \item Vector database thay kho fixture local.
+  \item Fusion đa phương thức: văn bản + audio 54 chiều.
+  \item Macro-F1, Precision@K; loại bài nhãn mặc định calm khi train.
+  \item Tập con có nhãn vàng cho validation.
+  \item Retry crawl Deezer (295 đang chờ, 232 lỗi kết nối).
+\end{itemize}
+
+\vspace{1em}
+\begin{flushright}
+  \textit{Nhóm thực hiện --- Hà Nội, 2025}
+\end{flushright}

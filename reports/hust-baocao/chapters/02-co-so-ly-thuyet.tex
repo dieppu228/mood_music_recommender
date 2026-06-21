@@ -1,0 +1,55 @@
+\chapter{Cơ sở lý thuyết}
+\label{ch:lythuyet}
+
+\section{Quy trình CRISP-DM}
+
+Project áp dụng sáu giai đoạn CRISP-DM~\cite{crispdm2000}: hiểu bài toán, hiểu dữ liệu, tiền xử lý, mô hình hóa, đánh giá, triển khai.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Ánh xạ CRISP-DM vào pipeline project}
+  \label{tab:crispdm}
+  \begin{tabularx}{\textwidth}{@{}L{3.2cm}X@{}}
+    \toprule
+    \textbf{Giai đoạn} & \textbf{Kết quả} \\
+    \midrule
+    Hiểu bài toán & Sáu mood chuẩn, bộ truy vấn crawl \\
+    Hiểu dữ liệu & Notebook EDA, năm biểu đồ thống kê \\
+    Tiền xử lý & Tập metadata 10.197 bài đã làm sạch \\
+    Mô hình hóa & Baseline TF-IDF; embedding Gemini \\
+    Đánh giá & Probe leakage; tóm tắt thống kê xử lý \\
+    Triển khai & Corpus 2.261 bài, agent gợi ý V1 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Weak supervision và nhãn mood}
+
+Nhãn mood gán khi crawl: bài thu từ tìm kiếm kế thừa mood của truy vấn; bài từ thư viện cá nhân không có truy vấn được gán mặc định \textit{calm} hoặc suy luận bằng từ khóa (172 bài, Bước 5).
+
+Sáu mood: \textit{happy}, \textit{sad}, \textit{calm}, \textit{energetic}, \textit{romantic}, \textit{stressed}.
+
+\section{Label leakage}
+
+Label leakage xảy ra khi thông tin sinh nhãn (truy vấn crawl) nằm trong vector đặc trưng huấn luyện~\cite{leakage2023}. Thí nghiệm đo hai giai đoạn:
+
+\begin{itemize}
+  \item \textbf{Trước sửa feature} (lưu ARCHIVED): khôi phục nhãn bằng từ khóa 0{,}811; accuracy 0{,}993; chỉ dùng truy vấn đạt 1{,}000.
+  \item \textbf{Sau sửa feature} (chỉ tên bài, nghệ sĩ, album): recovery 0{,}267; accuracy 0{,}707; truy vấn-only vẫn 1{,}000 nếu dùng nhầm cột đặc trưng.
+\end{itemize}
+
+\section{TF-IDF và embedding}
+
+TF-IDF~\cite{han2011} dùng làm baseline phân loại mood trên token văn bản metadata. Embedding Gemini \textit{gemini-embedding-001}, 768 chiều, kiểu tác vụ RETRIEVAL\_DOCUMENT cho tài liệu bài hát.
+
+\section{Audio features}
+
+Preview Deezer 30 giây được trích xuất vector \textbf{54 chiều} (schema v2): tempo (1), đặc trưng phổ và độ lệch chuẩn (8), MFCC 1--13 và std (26), chroma (12), spectral contrast (7) --- thư viện librosa~\cite{librosa}.
+
+\section{Retrieval scoring}
+
+Hệ thống gợi ý V1 tính điểm:
+\begin{equation}
+  \text{score} = 0{,}55 \cdot s_{\text{semantic}} + 0{,}20 \cdot s_{\text{mood}} + 0{,}20 \cdot s_{\text{genres}} + 0{,}05 \cdot s_{\text{tags}}
+\end{equation}
+Phiên bản V1: trường thể loại rỗng trên corpus; đặc trưng âm thanh chưa tham gia scoring.

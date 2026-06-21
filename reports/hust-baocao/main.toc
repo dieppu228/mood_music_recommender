@@ -1,0 +1,45 @@
+\xpg@aux {}{vietnamese}
+\contentsline {chapter}{Lời nói đầu}{i}{chapter*.1}%
+\contentsline {chapter}{\numberline {1}Giới thiệu}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Đề tài}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Mục tiêu}{1}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Phạm vi}{1}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Phân công nhóm}{2}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Cấu trúc báo cáo}{2}{section.1.5}%
+\contentsline {chapter}{\numberline {2}Cơ sở lý thuyết}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Quy trình CRISP-DM}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Weak supervision và nhãn mood}{3}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Label leakage}{3}{section.2.3}%
+\contentsline {section}{\numberline {2.4}TF-IDF và embedding}{4}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Audio features}{4}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Retrieval scoring}{4}{section.2.6}%
+\contentsline {chapter}{\numberline {3}Thu thập và mô tả dữ liệu}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Nguồn dữ liệu}{5}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Quy trình thu thập}{5}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Thống kê tập metadata}{5}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Tập audio training}{6}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Lược đồ dữ liệu}{6}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Corpus retrieval}{6}{section.3.6}%
+\contentsline {chapter}{\numberline {4}Khám phá và phân tích dữ liệu (EDA)}{7}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Phương pháp}{7}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Phân phối mood}{7}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Nguồn thu thập}{7}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Nguồn gán nhãn}{7}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Phân phối mood trên tập audio}{7}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Crawl audio Deezer}{10}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Thử nghiệm nguồn lyrics}{10}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Vấn đề text và label leakage}{11}{section.4.8}%
+\contentsline {chapter}{\numberline {5}Tiền xử lý và trích chọn đặc trưng}{12}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Các bước tiền xử lý}{12}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Làm sạch văn bản}{12}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Gán nhãn mood}{13}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Đặc trưng âm thanh}{13}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Corpus và embedding}{14}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Baseline TF-IDF}{14}{section.5.6}%
+\contentsline {chapter}{\numberline {6}Ứng dụng hệ thống gợi ý nhạc theo mood}{15}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Tổng quan}{15}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Chính sách mood}{15}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Công thức chấm điểm retrieval}{15}{section.6.3}%
+\contentsline {section}{\numberline {6.4}API và kiểm thử}{15}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Liên kết dữ liệu và agent}{16}{section.6.5}%
+\contentsline {chapter}{Kết luận và hướng phát triển}{17}{chapter*.27}%

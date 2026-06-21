@@ -1,0 +1,82 @@
+\chapter{Thu thập và mô tả dữ liệu}
+\label{ch:thuthap}
+
+\section{Nguồn dữ liệu}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Nguồn dữ liệu trong pipeline}
+  \label{tab:nguon}
+  \begin{tabularx}{\textwidth}{@{}L{2.8cm}X@{}}
+    \toprule
+    \textbf{Nguồn} & \textbf{Vai trò} \\
+    \midrule
+    Spotify Web API & Metadata, crawl theo truy vấn mood \\
+    Thư viện cá nhân & Bổ sung 1.306 bài \\
+    Deezer API & Preview MP3 30 giây \\
+    LRCLib, lyrics.ovh & Thử nghiệm lyrics (không đưa vào V1) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Quy trình thu thập}
+
+\begin{enumerate}[label=\arabic*.]
+  \item Gộp thư viện cá nhân và playlist crawl theo mood, mục tiêu từ 10.000 bài --- thu được 10.197 bài.
+  \item Bổ sung crawl cho mood thiểu số (stressed, romantic, energetic).
+  \item Tiền xử lý và gán nhãn trong notebook xử lý dữ liệu.
+  \item Tải preview Deezer, trích xuất đặc trưng librosa.
+  \item Xuất corpus JSONL và ma trắn embedding cho agent.
+\end{enumerate}
+
+\section{Thống kê tập metadata}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tóm tắt tập metadata sau xử lý}
+  \label{tab:mo-ta}
+  \begin{tabular}{@{}lr@{}}
+    \toprule
+    \textbf{Chỉ số} & \textbf{Giá trị} \\
+    \midrule
+    Số bản ghi & 10.197 \\
+    Bản ghi trùng loại bỏ & 0 \\
+    Nhãn suy luận (inferred) & 172 \\
+    Nhãn mặc định calm & 1.134 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Bước 3 khám phá: nguồn search 8.891 bài, profile 1.306 bài. Ba trường popularity, preview URL và genres thiếu 100\% trên toàn tập.
+
+\section{Tập audio training}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tóm tắt crawl preview Deezer}
+  \label{tab:audio-summary}
+  \begin{tabular}{@{}lr@{}}
+    \toprule
+    \textbf{Chỉ số} & \textbf{Giá trị} \\
+    \midrule
+    Mục tiêu tập phương Tây & 3.000 (500/mood $\times$ 6) \\
+    Số lần thử ghép nguồn & 2.705 \\
+    Bài audio hợp lệ (schema v2) & 2.261 \\
+    Tỷ lệ đạt / mục tiêu & 75{,}37\% \\
+    Tỷ lệ đạt / số lần thử & 83{,}59\% \\
+    Số chiều đặc trưng & 54 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Lược đồ dữ liệu}
+
+\textbf{Tập metadata xử lý} (39 cột): định danh bài hát, nhãn mood, nguồn gán nhãn, mô tả văn bản metadata, ngữ cảnh crawl (chỉ phân tích), token, số token, 54 cột audio (trên tập con).
+
+\textbf{Corpus gợi ý} (13 trường mỗi bài): mã bài, tiêu đề, nghệ sĩ, album, tóm tắt metadata, mood, tag, URL preview, URL Spotify; trường lời bài và thể loại để trống ở V1.
+
+\textbf{Quy tắc huấn luyện} (data card): đặc trưng chính là mô tả metadata bài hát; không huấn luyện phân loại mood trên truy vấn crawl, tag hay ngữ cảnh crawl.
+
+\section{Corpus retrieval}
+
+Corpus production: 2.261 bài. Ma trận embedding $2261 \times 768$, mô hình Gemini embedding 001. Tập mẫu kiểm thử: 30 bài, 5 bài/mood.
