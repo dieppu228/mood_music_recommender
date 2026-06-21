@@ -23,6 +23,13 @@ FIELD_WEIGHTS = {
 }
 
 
+def corpus_sha256(path: Path) -> str:
+    """Hash corpus text consistently across Windows and Unix checkouts."""
+
+    normalized = path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+    return sha256(normalized.encode("utf-8")).hexdigest()
+
+
 class FixtureStoreError(RuntimeError):
     """Raised when the fixture song store cannot load or search records."""
 
@@ -264,7 +271,7 @@ class FixtureSongStore:
     def _expected_embedding_manifest(self, record_count: int) -> dict[str, Any]:
         return {
             "corpus_path": str(self.path),
-            "corpus_sha256": sha256(self.path.read_bytes()).hexdigest(),
+            "corpus_sha256": corpus_sha256(self.path),
             "record_count": record_count,
             "embedding_model": self.settings.embedding_model,
             "document_task_type": self.settings.embedding_document_task_type,

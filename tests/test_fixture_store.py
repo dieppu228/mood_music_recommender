@@ -337,6 +337,29 @@ def test_loads_persisted_embeddings_without_reembedding_documents(tmp_path: Path
     assert runtime_embedder.query_calls == 1
 
 
+def test_embedding_manifest_ignores_line_ending_differences(tmp_path: Path) -> None:
+    path = tmp_path / "songs.jsonl"
+    cache_path = tmp_path / "songs.embeddings.npy"
+    write_jsonl(path, [song("s1", "After Rain", "Local Echo", "sad healing")])
+    settings = Settings(_env_file=None, embedding_output_dimensionality=8)
+    FixtureSongStore(
+        path,
+        embedding_client=KeywordEmbeddingClient(),
+        settings=settings,
+        embedding_cache_path=cache_path,
+    ).build_embedding_cache()
+
+    lf_content = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    path.write_bytes(lf_content.replace("\n", "\r\n").encode("utf-8"))
+
+    store = FixtureSongStore(
+        path,
+        embedding_client=KeywordEmbeddingClient(),
+        settings=settings,
+        embedding_cache_path=cache_path,
+    )
+    store.ensure_index()
+
 def test_rejects_embedding_cache_after_corpus_changes(tmp_path: Path) -> None:
     path = tmp_path / "songs.jsonl"
     cache_path = tmp_path / "songs.embeddings.npy"

@@ -316,6 +316,9 @@ uvicorn music_agent.api.main:app --host localhost --port 8000
 UI: cd app
 python3 -m http.server 5173
 
+cd app
+npm.cmd run dev
+
 ## Public Demo
 
 Cloudflare Quick Tunnel (temporary):
