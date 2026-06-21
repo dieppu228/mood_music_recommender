@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse
 
 from music_agent.agent.graph import build_agent_graph
 from music_agent.agent.state import AgentState
@@ -25,6 +25,10 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+        "http://localhost:5501",
+        "http://127.0.0.1:5501",
         "http://localhost:8000",
         "http://127.0.0.1:8000",
     ],
@@ -74,7 +78,9 @@ async def chat(request: ChatRequest, graph: Any = Depends(get_agent_graph)) -> C
 
 def build_chat_response(state: AgentState, request: ChatRequest) -> ChatResponse:
     status = state.status or infer_status(state)
-    answer = state.final_answer or "Mình chưa có đủ context đáng tin cậy để trả lời yêu cầu này."
+    answer = clean_answer_text(
+        state.final_answer or "Mình chưa có đủ context đáng tin cậy để trả lời yêu cầu này."
+    )
     return ChatResponse(
         status=status,
         answer=answer,
@@ -90,6 +96,10 @@ def infer_status(state: AgentState) -> AgentStatus:
     return AgentStatus.FAILED
 
 
+def clean_answer_text(answer: str) -> str:
+    return answer.replace("**", "").replace("__", "")
+
+
 def build_trace(state: AgentState) -> dict[str, Any]:
     return {
         "scratchpad": state.scratchpad,
@@ -102,27 +112,22 @@ def build_trace(state: AgentState) -> dict[str, Any]:
     }
 
 
-dashboard_path = Path(__file__).resolve().parents[3] / "app"
+dashboard_source_path = Path(__file__).resolve().parents[3] / "app"
+dashboard_dist_path = dashboard_source_path / "dist"
 
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard() -> str:
-    return (dashboard_path / "index.html").read_text(encoding="utf-8")
+    index_path = dashboard_dist_path / "index.html"
+    if not index_path.exists():
+        index_path = dashboard_source_path / "index.html"
+    return index_path.read_text(encoding="utf-8")
 
 
-@app.get("/main.js")
-async def dashboard_script() -> Response:
-    content = (dashboard_path / "main.js").read_text(encoding="utf-8")
-    return Response(content=content, media_type="text/javascript")
-
-
-@app.get("/styles.css")
-async def dashboard_styles() -> Response:
-    content = (dashboard_path / "styles.css").read_text(encoding="utf-8")
-    return Response(content=content, media_type="text/css")
-
-
-@app.get("/assets/mood-wave.svg")
-async def dashboard_image() -> Response:
-    content = (dashboard_path / "assets" / "mood-wave.svg").read_text(encoding="utf-8")
-    return Response(content=content, media_type="image/svg+xml")
+@app.get("/assets/{asset_path:path}")
+async def dashboard_asset(asset_path: str) -> FileResponse:
+    assets_root = (dashboard_dist_path / "assets").resolve()
+    target = (assets_root / asset_path).resolve()
+    if not target.is_relative_to(assets_root) or not target.is_file():
+        raise HTTPException(status_code=404, detail="Asset not found")
+    return FileResponse(target)

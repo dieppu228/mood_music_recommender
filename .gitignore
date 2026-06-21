@@ -5,6 +5,7 @@ __pycache__/
 .ruff_cache/
 .env
 .DS_Store
+node_modules/
 dist/
 build/
 *.egg-info/

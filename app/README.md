@@ -1,33 +1,29 @@
-# Music Mood Dashboard UI
+# VibeCue React UI
 
-Static chat dashboard for the local Music Mood Agent API.
+React and Vite frontend for the local Music Mood Agent API.
 
-## Run
+## Development
 
-Start backend services first:
-
-```bash
-uvicorn music_agent.mcp_server.server:app --host localhost --port 8001
-uvicorn music_agent.api.main:app --host localhost --port 8000
-```
-
-Serve the UI:
+Start the API on port 8000, then run:
 
 ```bash
 cd app
-python3 -m http.server 5173
+npm install
+npm run dev
 ```
 
-Open:
+Open `http://localhost:5173`. Vite proxies `/v1` and `/health` to the API.
 
-```text
-http://localhost:5173
+## Production build
+
+```bash
+cd app
+npm run build
 ```
 
-The dashboard calls:
+FastAPI serves the generated `app/dist` bundle at `http://localhost:8000`.
 
-```text
-http://localhost:8000/v1/chat
-```
+## VS Code Live Server
 
-Use the API URL field if the backend runs on another local port.
+Build the UI, then use **Open with Live Server** on `app/dist/index.html`.
+The Live Server build calls the API at `http://127.0.0.1:8000`.

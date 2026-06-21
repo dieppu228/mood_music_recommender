@@ -41,7 +41,7 @@ async def test_root_serves_dashboard() -> None:
         response = await client.get("/")
 
     assert response.status_code == 200
-    assert "Music Mood Agent Dashboard" in response.text
+    assert "<title>VibeCue</title>" in response.text
 
 
 @pytest.mark.asyncio
@@ -136,6 +136,20 @@ async def test_chat_clamps_recommendations_to_max_results() -> None:
         "mock-001",
         "mock-002",
     ]
+
+
+@pytest.mark.asyncio
+async def test_chat_removes_bold_markdown_markers_from_answer() -> None:
+    state = successful_state()
+    state.final_answer = "Nghe thử **After Rain** nhé."
+    graph = FakeGraph(output=state.model_dump(mode="python"))
+    override_agent_graph(graph)
+
+    async with make_test_client() as client:
+        response = await client.post("/v1/chat", json={"message": "goi y nhac"})
+
+    assert response.status_code == 200
+    assert response.json()["answer"] == "Nghe thử After Rain nhé."
 
 
 @pytest.mark.asyncio

@@ -1,30 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
-  <title id="title">Mood wave visual</title>
-  <desc id="desc">Abstract waveform and playlist cover art for the music mood dashboard.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="360" viewBox="0 0 1440 360" role="img" aria-labelledby="title desc">
+  <title id="title">Pastel mood wave</title>
+  <desc id="desc">A soft colorful sound wave flowing through a bright background.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#20322f"/>
-      <stop offset="0.48" stop-color="#693f43"/>
-      <stop offset="1" stop-color="#d2a449"/>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f5f9ff"/>
+      <stop offset="0.42" stop-color="#f8f1ff"/>
+      <stop offset="0.7" stop-color="#fff0f1"/>
+      <stop offset="1" stop-color="#fff2cf"/>
     </linearGradient>
-    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#67d7c4"/>
-      <stop offset="0.5" stop-color="#f06f5d"/>
-      <stop offset="1" stop-color="#f2c45b"/>
+    <linearGradient id="wave" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#cdeef2"/>
+      <stop offset="0.32" stop-color="#809af9"/>
+      <stop offset="0.55" stop-color="#9d75e8"/>
+      <stop offset="0.76" stop-color="#f4a7bd"/>
+      <stop offset="1" stop-color="#ffd778"/>
     </linearGradient>
+    <linearGradient id="waveSoft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#dff6f7" stop-opacity="0.75"/>
+      <stop offset="0.48" stop-color="#a8b6ff" stop-opacity="0.66"/>
+      <stop offset="1" stop-color="#ffe2a4" stop-opacity="0.74"/>
+    </linearGradient>
+    <filter id="blur" x="-20%" y="-30%" width="140%" height="160%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
   </defs>
-  <rect width="640" height="360" rx="8" fill="url(#bg)"/>
-  <g opacity="0.14" fill="#fff">
-    <rect x="64" y="56" width="64" height="248" rx="8"/>
-    <rect x="152" y="96" width="64" height="168" rx="8"/>
-    <rect x="240" y="72" width="64" height="216" rx="8"/>
-    <rect x="328" y="114" width="64" height="132" rx="8"/>
-    <rect x="416" y="80" width="64" height="200" rx="8"/>
-    <rect x="504" y="122" width="64" height="116" rx="8"/>
+  <rect width="1440" height="360" rx="8" fill="url(#sky)"/>
+  <path d="M0 285 C170 225 248 348 390 264 C522 186 586 94 730 133 C864 170 909 267 1050 236 C1191 205 1262 88 1440 86 L1440 360 L0 360 Z" fill="url(#waveSoft)" filter="url(#blur)" opacity="0.72"/>
+  <path d="M0 322 C157 272 238 345 374 290 C514 234 576 132 718 139 C861 146 921 245 1058 222 C1206 196 1282 92 1440 107 L1440 360 L0 360 Z" fill="url(#wave)" opacity="0.9"/>
+  <g fill="none" stroke="#ffffff" stroke-linecap="round" opacity="0.45">
+    <path d="M38 318 C180 271 258 329 388 278 C522 225 585 149 718 153 C850 158 925 231 1051 211 C1190 188 1279 111 1420 121"/>
+    <path d="M34 330 C179 285 261 342 395 291 C526 241 593 169 721 172 C850 176 927 244 1056 224 C1191 203 1283 128 1422 137"/>
+    <path d="M30 342 C181 299 264 354 399 305 C531 257 599 188 725 191 C853 194 932 258 1062 238 C1197 217 1288 146 1426 153"/>
   </g>
-  <path d="M48 188 C104 112 148 260 206 178 S314 116 368 188 474 262 536 162 598 126 624 154" fill="none" stroke="url(#line)" stroke-width="10" stroke-linecap="round"/>
-  <path d="M48 220 C104 144 148 292 206 210 S314 148 368 220 474 294 536 194 598 158 624 186" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="108" cy="188" r="10" fill="#67d7c4"/>
-  <circle cx="368" cy="188" r="10" fill="#f06f5d"/>
-  <circle cx="536" cy="162" r="10" fill="#f2c45b"/>
+  <g fill="#ffffff" opacity="0.9">
+    <circle cx="760" cy="68" r="4"/>
+    <circle cx="892" cy="42" r="5"/>
+    <circle cx="1182" cy="76" r="3"/>
+    <circle cx="1274" cy="49" r="4"/>
+  </g>
+  <g fill="#899af4" opacity="0.72">
+    <circle cx="1012" cy="106" r="16"/>
+    <path d="M538 118 v42 a13 13 0 1 1 -7 -12 v-43 l38 -8 v39 a13 13 0 1 1 -7 -12 v-39 z"/>
+  </g>
+  <g fill="#ffffff" opacity="0.94">
+    <circle cx="1282" cy="232" r="20"/>
+    <path d="M1201 142 v41 a12 12 0 1 1 -7 -11 v-43 l31 -7 v38 a12 12 0 1 1 -7 -11 v-35 z"/>
+  </g>
 </svg>
