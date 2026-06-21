@@ -1,0 +1,178 @@
+\chapter{Khám phá và phân tích dữ liệu (EDA)}
+\label{ch:eda}
+
+\section{Phương pháp}
+
+EDA thực hiện trong notebook xử lý dữ liệu: Bước 3 (khám phá nhanh) và Bước 9 (trực quan hóa). Năm biểu đồ Hình~\ref{fig:mood-full}--\ref{fig:audio-snapshot} sinh ở Bước 9.
+
+\section{Phân phối mood}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Phân phối nhãn mood (10.197 bài)}
+  \label{tab:mood-full}
+  \begin{tabular}{@{}lrr@{}}
+    \toprule
+    \textbf{Mood} & \textbf{Số lượng} & \textbf{Tỷ lệ (\%)} \\
+    \midrule
+    happy     & 3.065 & 30{,}1 \\
+    calm      & 2.365 & 23{,}2 \\
+    sad       & 1.859 & 18{,}2 \\
+    energetic & 1.050 & 10{,}3 \\
+    romantic  &   997 &  9{,}8 \\
+    stressed  &   861 &  8{,}4 \\
+    \midrule
+    \textbf{Tổng} & \textbf{10.197} & \textbf{100{,}0} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{01_mood_distribution.png}
+  \caption{Phân bố bài hát theo mood (Bước 9)}
+  \label{fig:mood-full}
+\end{figure}
+
+Trước Bước 5 gán nhãn, 1.306 bài profile chưa có nhãn mood.
+
+\section{Nguồn thu thập}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.72\textwidth]{02_data_origin.png}
+  \caption{Phân bố nguồn: search 8.891, profile 1.306}
+  \label{fig:origin}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{03_mood_origin_heatmap.png}
+  \caption{Heatmap mood theo nguồn thu thập}
+  \label{fig:heatmap}
+\end{figure}
+
+\section{Nguồn gán nhãn}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Phân bố nguồn gán nhãn mood}
+  \label{tab:label-source}
+  \begin{tabular}{@{}lrr@{}}
+    \toprule
+    \textbf{Nguồn nhãn} & \textbf{Số lượng} & \textbf{Tỷ lệ (\%)} \\
+    \midrule
+    Từ truy vấn crawl & 8.891 & 87{,}2 \\
+    Mặc định calm & 1.134 & 11{,}1 \\
+    Suy luận từ khóa & 172 & 1{,}7 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{04_label_quality.png}
+  \caption{Chất lượng nhãn mood theo nguồn gán nhãn}
+  \label{fig:label-quality}
+\end{figure}
+
+\section{Phân phối mood trên tập audio}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Phân phối mood --- tập huấn luyện audio (2.261 bài)}
+  \label{tab:mood-audio}
+  \begin{tabular}{@{}lr@{}}
+    \toprule
+    \textbf{Mood} & \textbf{Số lượng} \\
+    \midrule
+    romantic  & 450 \\
+    calm      & 417 \\
+    happy     & 381 \\
+    energetic & 375 \\
+    sad       & 374 \\
+    stressed  & 264 \\
+    \midrule
+    \textbf{Tổng} & \textbf{2.261} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Tập lấy mẫu 500 bài/mood trên six mood, lọc bài có preview và trích xuất audio thành công.
+
+\section{Crawl audio Deezer}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{05_audio_crawl_snapshot.png}
+  \caption{Snapshot tiến độ crawl audio (Bước 7b)}
+  \label{fig:audio-snapshot}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Trạng thái crawl preview Deezer}
+  \label{tab:deezer-status}
+  \begin{tabular}{@{}lr@{}}
+    \toprule
+    \textbf{Trạng thái} & \textbf{Số lượng} \\
+    \midrule
+    Thành công & 2.261 \\
+    Đang chờ & 295 \\
+    Lỗi kết nối & 232 \\
+    Không tìm thấy trên Deezer & 210 \\
+    Không có preview & 2 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Thử nghiệm pilot Deezer trên 200 bài: tìm thấy 80 (40\%); có preview 80 (40\%); tỷ lệ preview theo vùng --- phương Tây 41{,}1\%, Việt Nam 37{,}9\%.
+
+\section{Thử nghiệm nguồn lyrics}
+
+Thử nghiệm 60 bài trên mỗi nguồn:
+
+\begin{table}[htbp]
+  \centering
+  \caption{Kết quả thử nghiệm nguồn lyrics}
+  \label{tab:lyrics-probe}
+  \begin{tabular}{@{}lrr@{}}
+    \toprule
+    \textbf{Nguồn} & \textbf{Số thành công} & \textbf{Tỷ lệ (\%)} \\
+    \midrule
+    LRCLib & 29 & 48{,}3 \\
+    lyrics.ovh & 9 & 15{,}0 \\
+    Genius (scrape) & 0 & 0{,}0 \\
+    ChartLyrics & 0 & 0{,}0 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+V1 dùng metadata-only; trường tóm tắt lời bài để trống trên corpus.
+
+\section{Vấn đề text và label leakage}
+
+Trên phiên bản feature text cũ (trước Bước 7): token ``nan'' trên 1.309 dòng (12{,}8\%); token ``liked'' trên khoảng 48{,}9\% bài profile; số token trung bình --- search 14{,}5, profile 7{,}9.
+
+Thí nghiệm leakage sau khi tách feature (chỉ metadata bài hát):
+
+\begin{table}[htbp]
+  \centering
+  \caption{Kết quả thí nghiệm label leakage}
+  \label{tab:leakage}
+  \small
+  \begin{tabularx}{\textwidth}{@{}L{4.5cm}R{1.5cm}R{1.5cm}X@{}}
+    \toprule
+    \textbf{Thí nghiệm} & \textbf{Trước} & \textbf{Sau} & \textbf{Ghi chú} \\
+    \midrule
+    Khôi phục nhãn bằng từ khóa & 0{,}811 & 0{,}267 & Baseline lớp đa số: 0{,}301 \\
+    TF-IDF + logistic & 0{,}993 & 0{,}707 & \\
+    Ablation từ khóa mood & --- & 0{,}649 & \\
+    Chỉ tên bài + nghệ sĩ & --- & 0{,}671 & \\
+    Chỉ nghệ sĩ & --- & 0{,}531 & \\
+    Chỉ truy vấn crawl & 1{,}000 & 1{,}000 & Khi đưa truy vấn vào feature \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Số liệu ``trước'' lưu ARCHIVED; tập hiện tại không tái tạo được bản feature cũ (đã gộp truy vấn vào văn bản).

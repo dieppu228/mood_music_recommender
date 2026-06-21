@@ -1,0 +1,24 @@
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {1.1}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Phân công công việc (5 thành viên --- cần điền tên/MSSV thực tế)}}{2}{table.caption.5}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Ánh xạ CRISP-DM vào pipeline project}}{3}{table.caption.6}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Nguồn dữ liệu trong pipeline}}{5}{table.caption.7}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Tóm tắt tập metadata sau xử lý}}{6}{table.caption.8}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Tóm tắt crawl preview Deezer}}{6}{table.caption.9}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Phân phối nhãn mood (10.197 bài)}}{7}{table.caption.10}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Phân bố nguồn gán nhãn mood}}{8}{table.caption.14}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Phân phối mood --- tập huấn luyện audio (2.261 bài)}}{10}{table.caption.16}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Trạng thái crawl preview Deezer}}{10}{table.caption.18}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Kết quả thử nghiệm nguồn lyrics}}{11}{table.caption.19}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Kết quả thí nghiệm label leakage}}{11}{table.caption.20}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Các bước trong notebook xử lý dữ liệu}}{12}{table.caption.21}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Thiết kế đặc trưng văn bản sau Bước 7}}{13}{table.caption.22}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Cấu trúc vector audio 54 chiều (schema v2)}}{13}{table.caption.23}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Baseline phân loại mood (TF-IDF + logistic)}}{14}{table.caption.24}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Trọng số scoring retrieval V1}}{15}{table.caption.25}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Dữ liệu pipeline và vai trò trong agent}}{16}{table.caption.26}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces \xpg@aux {}{vietnamese}\ignorespaces Tóm tắt kết quả pipeline dữ liệu}}{17}{table.caption.29}%

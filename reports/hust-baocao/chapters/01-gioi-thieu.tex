@@ -1,0 +1,46 @@
+\chapter{Giới thiệu}
+
+\section{Đề tài}
+
+Project \textit{Music Mood Recommender} xây dựng pipeline thu thập metadata bài hát từ Spotify, tiền xử lý và phân tích dữ liệu, trích chọn đặc trưng văn bản/âm thanh, rồi chuẩn bị corpus phục vụ retrieval ngữ nghĩa. Hệ thống agent gợi ý (LangGraph + MCP) triển khai ở phiên bản V1; báo cáo tập trung phần khai phá dữ liệu.
+
+\section{Mục tiêu}
+
+\begin{enumerate}[label=\arabic*.]
+  \item Thu thập metadata Spotify theo truy vấn mood, đạt 10.197 bài.
+  \item Khám phá dữ liệu: phân phối mood, nguồn nhãn, giá trị thiếu, chất lượng văn bản.
+  \item Trích xuất 54 chiều đặc trưng âm thanh từ preview Deezer 30 giây.
+  \item Đo rò rỉ nhãn (label leakage) trên đặc trưng văn bản.
+  \item Chuẩn bị corpus 2.261 bài và embedding cache 768 chiều (Gemini).
+\end{enumerate}
+
+\section{Phạm vi}
+
+\textbf{Trong phạm vi:} crawl Spotify hybrid; tiền xử lý; EDA; audio features (librosa); corpus JSONL; embedding; mô tả agent V1.
+
+\textbf{Ngoài phạm vi V1:} pipeline lyrics; vector database Qdrant; đặc trưng âm thanh trong scoring retrieval; huấn luyện deep learning quy mô lớn.
+
+Spotify Developer Mode không trả lyrics, valence/energy, thể loại (genres), URL preview --- hạn chế được ghi nhận ở Bước 3 khám phá dữ liệu.
+
+\section{Phân công nhóm}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Phân công công việc (5 thành viên --- cần điền tên/MSSV thực tế)}
+  \label{tab:phan-cong}
+  \begin{tabularx}{\textwidth}{@{}L{2.8cm}L{3.5cm}X@{}}
+    \toprule
+    \textbf{Thành viên} & \textbf{Phần việc} & \textbf{Nội dung} \\
+    \midrule
+    SV1 & Thu thập dữ liệu & Crawl hybrid, bổ sung mood thiểu số \\
+    SV2 & EDA \& tiền xử lý & Notebook xử lý, thống kê, biểu đồ \\
+    SV3 & Đặc trưng văn bản & Làm sạch text, đo label leakage \\
+    SV4 & Đặc trưng âm thanh & Crawl Deezer, librosa 54 chiều \\
+    SV5 & Corpus \& báo cáo & JSONL, embedding, soạn báo cáo \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Cấu trúc báo cáo}
+
+Chương~\ref{ch:lythuyet}: cơ sở lý thuyết. Chương~\ref{ch:thuthap}: thu thập. Chương~\ref{ch:eda}--\ref{ch:tienxuly}: EDA và tiền xử lý. Chương~\ref{ch:ungdung}: agent V1. Phần kết luận tổng hợp số liệu pipeline.

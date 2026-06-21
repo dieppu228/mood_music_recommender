@@ -1,0 +1,117 @@
+\chapter{Tiền xử lý và trích chọn đặc trưng}
+\label{ch:tienxuly}
+
+\section{Các bước tiền xử lý}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Các bước trong notebook xử lý dữ liệu}
+  \label{tab:steps}
+  \begin{tabularx}{\textwidth}{@{}cL{2.5cm}X@{}}
+    \toprule
+    \textbf{Bước} & \textbf{Tên} & \textbf{Kết quả} \\
+    \midrule
+    3 & Khám phá nhanh & Thống kê thiếu, phân bố nguồn \\
+    4 & Loại trùng, làm sạch text & Tên bài, nghệ sĩ chuẩn hóa \\
+    5 & Gán mood & 172 bài suy luận; phân phối Bảng~\ref{tab:mood-full} \\
+    6 & Chuẩn hóa metadata & Nghệ sĩ chính, năm phát hành, tag \\
+    7 & Đặc trưng văn bản & Mô tả metadata; ngữ cảnh crawl tách riêng \\
+    7b & Ghép audio & Checkpoint Deezer \\
+    8 & Lưu tập xử lý & Tóm tắt thống kê xử lý \\
+    9 & Trực quan hóa & Năm biểu đồ EDA \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Sau Bước 4: 10.197 bài, không còn trùng lặp.
+
+\section{Làm sạch văn bản}
+
+Bước 7 thực hiện:
+\begin{itemize}
+  \item Chuẩn hóa giá trị thiếu thành chuỗi rỗng (tránh token ``nan'').
+  \item \textbf{Mô tả metadata} = tên bài + nghệ sĩ + album --- dùng huấn luyện và suy luận.
+  \item \textbf{Ngữ cảnh crawl} = truy vấn + tag --- chỉ dùng phân tích, không huấn luyện classifier.
+  \item Token hóa mô tả metadata, bỏ stopword, loại token trùng.
+  \item Bỏ tên nguồn generic (``Liked Songs'') khỏi feature.
+\end{itemize}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Thiết kế đặc trưng văn bản sau Bước 7}
+  \label{tab:text-columns}
+  \begin{tabularx}{\textwidth}{@{}L{3.5cm}X L{3cm}@{}}
+    \toprule
+    \textbf{Thành phần} & \textbf{Nội dung} & \textbf{Vai trò} \\
+    \midrule
+    Mô tả metadata & Tên, nghệ sĩ, album & Feature chính \\
+    Ngữ cảnh crawl & Truy vấn, tag & Chỉ EDA / ablation \\
+    Token & Từ mô tả metadata & Input TF-IDF \\
+    Nguồn nhãn & Crawl / suy luận / mặc định & Lọc tập train \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Gán nhãn mood}
+
+\begin{enumerate}[label=\arabic*.]
+  \item Bài crawl search: nhãn từ truy vấn tìm kiếm.
+  \item Bài profile có tín hiệu từ khóa: nhãn suy luận (172 bài).
+  \item Bài profile còn lại: gán mặc định \textit{calm} (1.134 bài).
+\end{enumerate}
+
+Khuyến nghị huấn luyện: ưu tiên bài nhãn từ truy vấn crawl; cân nhắc loại 1.134 bài nhãn mặc định calm.
+
+\section{Đặc trưng âm thanh}
+
+Lấy mẫu 500 bài/mood (tập phương Tây 3.000 bài), ghép sang Deezer, tải preview, trích xuất librosa.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Cấu trúc vector audio 54 chiều (schema v2)}
+  \label{tab:audio-features}
+  \begin{tabular}{@{}llr@{}}
+    \toprule
+    \textbf{Nhóm} & \textbf{Mô tả} & \textbf{Chiều} \\
+    \midrule
+    Tempo & Nhịp trung bình & 1 \\
+    Spectral & RMS, centroid, rolloff, ZCR (+ std) & 8 \\
+    MFCC & Hệ số 1--13 (+ std) & 26 \\
+    Chroma & 12 pitch class & 12 \\
+    Contrast & Spectral contrast 1--7 & 7 \\
+    \midrule
+    \textbf{Tổng} & & \textbf{54} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Kết quả: 2.261 bài trong tập huấn luyện audio.
+
+\section{Corpus và embedding}
+
+Corpus JSONL gồm 2.261 bài. Trường tóm tắt metadata ghép tiêu đề, album, năm, mood, tag. Trường lời bài để trống; thể loại rỗng trên crawl hiện tại. Tập mẫu kiểm thử: 30 bài (5/mood, seed=42).
+
+Ma trận embedding $2261 \times 768$, kiểm tra tính toàn vẹn corpus bằng hash SHA-256.
+
+\section{Baseline TF-IDF}
+
+Cross-validation 5-fold trên tập post-patch:
+
+\begin{table}[htbp]
+  \centering
+  \caption{Baseline phân loại mood (TF-IDF + logistic)}
+  \label{tab:baseline}
+  \begin{tabular}{@{}lr@{}}
+    \toprule
+    \textbf{Thí nghiệm} & \textbf{Accuracy} \\
+    \midrule
+    Lớp đa số (calm) & 0{,}301 \\
+    Chỉ nghệ sĩ & 0{,}531 \\
+    Tên bài + nghệ sĩ & 0{,}671 \\
+    Token metadata đầy đủ & 0{,}707 \\
+    Sau ablation từ khóa mood & 0{,}649 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Metric đề xuất tiếp theo: macro-F1, ma trận nhầm lẫn; Precision@K cho retrieval.

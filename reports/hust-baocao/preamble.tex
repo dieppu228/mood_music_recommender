@@ -1,0 +1,45 @@
+% Preamble — báo cáo nhóm, Học phần Nhập môn Khai phá Dữ liệu (HUST)
+\usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{polyglossia}
+\setdefaultlanguage{vietnamese}
+\setotherlanguage{english}
+
+\usepackage{setspace}
+\onehalfspacing
+
+\usepackage{float}
+\usepackage{graphicx}
+\graphicspath{{../../spocrawl/data/processed/figures/}}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=blue,
+  urlcolor=blue,
+}
+
+\captionsetup[figure]{labelsep=period, font=small}
+\captionsetup[table]{labelsep=period, font=small, skip=6pt}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+\numberwithin{equation}{chapter}
+\numberwithin{figure}{chapter}
+\numberwithin{table}{chapter}
+
+\newcommand{\HUST}{Trường Đại học Bách Khoa Hà Nội}
+\newcommand{\course}{Nhập môn Khai phá Dữ liệu}
+\newcommand{\projecttitle}{Phân tích dữ liệu và xây dựng hệ thống gợi ý nhạc theo tâm trạng}

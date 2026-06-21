@@ -1,0 +1,60 @@
+\chapter{Ứng dụng hệ thống gợi ý nhạc theo mood}
+\label{ch:ungdung}
+
+\section{Tổng quan}
+
+Agent V1 chạy vòng lặp suy luận bốn bước: phân tích yêu cầu, gọi công cụ, quan sát kết quả, trả lời người dùng (LangGraph). API REST phục vụ chat; server MCP phục vụ công cụ tìm kiếm nội bộ.
+
+Corpus retrieval: 2.261 bài kèm ma trận embedding 768 chiều.
+
+\section{Chính sách mood}
+
+Agent phân biệt \textbf{mood hiện tại} (cảm xúc người dùng mô tả) và \textbf{mood mục tiêu} (mood nhạc cần gợi ý). Sáu mood chuẩn trùng tập crawl.
+
+\section{Công thức chấm điểm retrieval}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Trọng số scoring retrieval V1}
+  \label{tab:scoring}
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    \textbf{Thành phần} & \textbf{Trọng số} \\
+    \midrule
+    Tương đồng ngữ nghĩa (cosine embedding) & 0{,}55 \\
+    Khớp mood & 0{,}20 \\
+    Khớp thể loại & 0{,}20 \\
+    Khớp tag & 0{,}05 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Nghệ sĩ lọc khớp chính xác, không embed. V1: trường thể loại rỗng trên corpus.
+
+\section{API và kiểm thử}
+
+API chat trả câu trả lời tự nhiên, danh sách gợi ý và lịch sử gọi công cụ. Mỗi request ghi log trace agent.
+
+Bộ kiểm thử: 17 module pytest, chạy offline không cần khóa API.
+
+\section{Liên kết dữ liệu và agent}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Dữ liệu pipeline và vai trò trong agent}
+  \label{tab:data-agent}
+  \begin{tabularx}{\textwidth}{@{}L{4cm}X@{}}
+    \toprule
+    \textbf{Dữ liệu} & \textbf{Vai trò} \\
+    \midrule
+    Tóm tắt metadata bài hát & Text embed cho retrieval \\
+    Nhãn mood & Lọc và chấm điểm (0{,}20) \\
+    Tag & Chấm điểm bổ sung (0{,}05) \\
+    Ma trận embedding & Cosine similarity (0{,}55) \\
+    URL preview Deezer & Phát thử trên giao diện \\
+    Tập mẫu 30 bài & Kiểm thử offline \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Đặc trưng âm thanh 54 chiều có trong tập huấn luyện nhưng chưa dùng trong scoring V1.
