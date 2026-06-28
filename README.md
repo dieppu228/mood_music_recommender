@@ -306,21 +306,23 @@ same contracts:
 
 The adapter should replace retrieval behind the MCP `music_rag_search` tool without changing the
 agent graph, API response model, or prompt contracts.
----------------------------------------------------------------------------
-MCP : source .venv/bin/activate
-uvicorn music_agent.mcp_server.server:app --host localhost --port 8001
-
-API: source .venv/bin/activate
-uvicorn music_agent.api.main:app --host localhost --port 8000
-
-UI: cd app
-python3 -m http.server 5173
-
-cd app
-npm.cmd run dev
-
 ## Public Demo
 
 Cloudflare Quick Tunnel (temporary):
 
 https://pine-choir-smtp-killing.trycloudflare.com
+
+## Run Locally on Windows
+
+Open three PowerShell terminals in VS Code at the repository root and run one command in each terminal:
+
+```powershell
+# MCP server — http://localhost:8001/mcp
+.\.venv\Scripts\python.exe -m uvicorn music_agent.mcp_server.server:app --host localhost --port 8001
+
+# API — http://localhost:8000
+.\.venv\Scripts\python.exe -m uvicorn music_agent.api.main:app --host localhost --port 8000
+
+# UI — http://localhost:5173
+npm.cmd --prefix app run dev
+```

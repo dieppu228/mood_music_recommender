@@ -270,7 +270,9 @@ class FixtureSongStore:
 
     def _expected_embedding_manifest(self, record_count: int) -> dict[str, Any]:
         return {
-            "corpus_path": str(self.path),
+            # Keep manifests portable across Windows and Unix checkouts.  The path is
+            # metadata only; corpus identity is validated by the normalized SHA below.
+            "corpus_path": self.path.as_posix(),
             "corpus_sha256": corpus_sha256(self.path),
             "record_count": record_count,
             "embedding_model": self.settings.embedding_model,
